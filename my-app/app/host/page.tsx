@@ -2,12 +2,13 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { getSocket } from "@/lib/socket";
 import {
-  HostLobby, HostQuestion, HostReveal, HostLeaderboard, HostPodium,
+  HostLobby, HostQuestion, HostReveal, HostLeaderboard, HostPodium, HostTeamStats,
+  type TeamStatsRow,
 } from "@/components/host-screens";
 
 const COUNTDOWN_MAX = 20;
 
-type Phase = "lobby" | "question" | "reveal" | "leaderboard" | "podium";
+type Phase = "lobby" | "question" | "reveal" | "leaderboard" | "podium" | "teamstats";
 
 interface QuestionPayload {
   qi: number;
@@ -36,7 +37,8 @@ interface PodiumPayload {
 
 export default function HostPage() {
   const [pin, setPin]           = useState("");
-  const [players, setPlayers]   = useState<string[]>([]);
+  const [players, setPlayers]   = useState<{ name: string; team: string }[]>([]);
+  const [teamStats, setTeamStats] = useState<TeamStatsRow[]>([]);
   const [phase, setPhase]       = useState<Phase>("lobby");
   const [scale, setScale]       = useState(1);
   const [countdown, setCountdown] = useState(COUNTDOWN_MAX);
@@ -53,14 +55,11 @@ export default function HostPage() {
   const stageRef  = useRef<HTMLDivElement>(null);
   const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Scale the 1920×1080 stage to fit viewport
+  // Scale the 1920×1080 stage to fill the viewport width (dynamic)
   useEffect(() => {
     function doScale() {
       if (!stageRef.current) return;
-      setScale(Math.min(
-        stageRef.current.clientWidth / 1920,
-        stageRef.current.clientHeight / 1080,
-      ));
+      setScale(stageRef.current.clientWidth / 1920);
     }
     doScale();
     window.addEventListener("resize", doScale);
@@ -73,7 +72,7 @@ export default function HostPage() {
 
     socket.emit("host:create", {}, (res: { pin: string }) => setPin(res.pin));
 
-    socket.on("lobby:update", ({ players: p }: { players: string[] }) => {
+    socket.on("lobby:update", ({ players: p }: { players: { name: string; team: string }[] }) => {
       setPlayers(p);
       setPlayerCount(p.length);
     });
@@ -121,6 +120,11 @@ export default function HostPage() {
       setPhase("podium");
     });
 
+    socket.on("game:teamstats", ({ teams }: { teams: TeamStatsRow[] }) => {
+      setTeamStats(teams);
+      setPhase("teamstats");
+    });
+
     return () => {
       socket.off("lobby:update");
       socket.off("game:question");
@@ -128,6 +132,7 @@ export default function HostPage() {
       socket.off("game:reveal");
       socket.off("game:leaderboard");
       socket.off("game:podium");
+      socket.off("game:teamstats");
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
@@ -163,6 +168,8 @@ export default function HostPage() {
         return <HostLeaderboard leaders={leaders} qi={qIdx} />;
       case "podium":
         return <HostPodium leaders={leaders} />;
+      case "teamstats":
+        return <HostTeamStats teams={teamStats} />;
     }
   }
 
@@ -173,11 +180,10 @@ export default function HostPage() {
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#0d0a07", overflow: "hidden" }}>
 
       {/* Stage */}
-      <div ref={stageRef} style={{ flex: 1, overflow: "hidden", position: "relative", background: "#0a0806" }}>
+      <div ref={stageRef} style={{ flex: 1, overflow: "hidden", position: "relative", background: "#0a0806", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{
-          position: "absolute", top: 0, left: 0,
-          width: 1920, height: 1080,
-          transformOrigin: "top left",
+          width: 1920, height: 1080, flexShrink: 0,
+          transformOrigin: "center center",
           transform: `scale(${scale})`,
         }}>
           {renderStage()}
@@ -201,7 +207,7 @@ export default function HostPage() {
             Spiel starten →
           </button>
         )}
-        {(phase === "question" || phase === "reveal" || phase === "leaderboard") && (
+        {(phase === "question" || phase === "reveal" || phase === "leaderboard" || phase === "podium") && (
           <button onClick={handleNext} style={{
             fontFamily: SANS, fontWeight: 900, fontSize: 15,
             textTransform: "uppercase", letterSpacing: ".06em",
@@ -209,7 +215,7 @@ export default function HostPage() {
             border: "2px solid #a40f12", borderRadius: 6,
             padding: "10px 32px", cursor: "pointer",
           }}>
-            {phase === "question" ? "Auflösung →" : phase === "reveal" ? "Weiter →" : "Nächste Frage →"}
+            {phase === "question" ? "Auflösung →" : phase === "reveal" ? "Weiter →" : phase === "podium" ? "Team-Wertung →" : "Nächste Frage →"}
           </button>
         )}
         <div style={{ fontFamily: SANS, fontWeight: 600, fontSize: 12, color: "#5b5547", textTransform: "uppercase", letterSpacing: ".1em" }}>

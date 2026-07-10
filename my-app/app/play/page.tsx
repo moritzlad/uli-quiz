@@ -33,14 +33,19 @@ interface PodiumPayload {
   leaders: { name: string; score: number }[];
 }
 
+interface TeamStatsPayload {
+  teams: { team: string; playerCount: number; totalScore: number; avgScore: number; mvp: { name: string; score: number } | null }[];
+}
+
 function PlayPageInner() {
   const params   = useSearchParams();
   const pin      = params.get("pin") ?? "";
   const name     = params.get("name") ?? "";
-  const players  = params.get("players")?.split(",").filter(Boolean) ?? [];
+  const team     = params.get("team") ?? "";
 
   const [phase, setPhase]           = useState<Phase>("waiting");
-  const [lobbyPlayers, setLobbyPlayers] = useState<string[]>(players);
+  const [lobbyPlayers, setLobbyPlayers] = useState<{ name: string; team: string }[]>([]);
+  const [teamStats, setTeamStats]   = useState<TeamStatsPayload["teams"] | null>(null);
   const [question, setQuestion]     = useState<{ text: string; opts: string[] } | null>(null);
   const [qi, setQi]                 = useState(0);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
@@ -56,7 +61,7 @@ function PlayPageInner() {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.on("lobby:update", ({ players: p }: { players: string[] }) => {
+    socket.on("lobby:update", ({ players: p }: { players: { name: string; team: string }[] }) => {
       setLobbyPlayers(p);
     });
 
@@ -103,12 +108,17 @@ function PlayPageInner() {
       setPhase("podium");
     });
 
+    socket.on("game:teamstats", (payload: TeamStatsPayload) => {
+      setTeamStats(payload.teams);
+    });
+
     return () => {
       socket.off("lobby:update");
       socket.off("game:question");
       socket.off("game:reveal");
       socket.off("game:leaderboard");
       socket.off("game:podium");
+      socket.off("game:teamstats");
     };
   }, [name, selectedIdx]);
 
@@ -123,7 +133,7 @@ function PlayPageInner() {
     switch (phase) {
       case "waiting":
       case "leaderboard":
-        return <PlayerWaiting name={name} players={lobbyPlayers} />;
+        return <PlayerWaiting name={name} team={team} players={lobbyPlayers} />;
       case "question":
         return question ? (
           <PlayerAnswering question={question} qi={qi} onAnswer={handleAnswer} selectedIdx={selectedIdx} />
@@ -135,10 +145,18 @@ function PlayPageInner() {
             totalScore={totalScore} rank={rank} totalPlayers={totalPlayers}
           />
         );
-      case "podium":
+      case "podium": {
+        const ranked = teamStats?.filter(t => t.playerCount > 0) ?? [];
+        const teamIdx = ranked.findIndex(t => t.team === team);
         return (
-          <PlayerFinal rank={rank} totalScore={totalScore} totalPlayers={totalPlayers} name={name} />
+          <PlayerFinal
+            rank={rank} totalScore={totalScore} totalPlayers={totalPlayers} name={name}
+            team={team || undefined}
+            teamRank={teamIdx >= 0 ? teamIdx + 1 : undefined}
+            teamCount={teamIdx >= 0 ? ranked.length : undefined}
+          />
         );
+      }
     }
   }
 

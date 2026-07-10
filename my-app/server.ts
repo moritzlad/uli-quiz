@@ -2,9 +2,9 @@ import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
 import {
-  createRoom, addPlayer, removePlayer, getRoom, playerNames,
+  createRoom, addPlayer, removePlayer, getRoom, playerList,
   startQuestion, recordAnswer, getAnsweredCount, getAnswerDist,
-  scoreAnswers, getLeaderboard,
+  scoreAnswers, getLeaderboard, getTeamStats,
 } from "./lib/game";
 import { sampleQuestions } from "./lib/quiz-data";
 
@@ -26,16 +26,16 @@ app.prepare().then(() => {
       cb?.({ pin: room.pin });
     });
 
-    socket.on("player:join", ({ pin, name }: { pin: string; name: string }, cb: (res: { ok: boolean; error?: string }) => void) => {
-      const room = addPlayer(pin, socket.id, name);
+    socket.on("player:join", ({ pin, name, team }: { pin: string; name: string; team: string }, cb: (res: { ok: boolean; error?: string }) => void) => {
+      const room = addPlayer(pin, socket.id, name, team);
       if (!room) {
-        cb?.({ ok: false, error: "Raum nicht gefunden oder schon gestartet" });
+        cb?.({ ok: false, error: "Raum nicht gefunden, schon gestartet oder ungültiges Team" });
         return;
       }
       socket.join(pin);
       socket.data.pin = pin;
       cb?.({ ok: true });
-      io.to(pin).emit("lobby:update", { players: playerNames(room) });
+      io.to(pin).emit("lobby:update", { players: playerList(room) });
     });
 
     socket.on("host:start", ({ pin }: { pin: string }) => {
@@ -87,6 +87,9 @@ app.prepare().then(() => {
           room.phase = "podium";
           io.to(pin).emit("game:podium", { leaders: getLeaderboard(room) });
         }
+      } else if (room.phase === "podium") {
+        room.phase = "teamstats";
+        io.to(pin).emit("game:teamstats", { teams: getTeamStats(room) });
       } else if (room.phase === "leaderboard") {
         startQuestion(room);
         const q = room.questions[room.currentIndex];
@@ -107,7 +110,7 @@ app.prepare().then(() => {
       if (!room) return;
       removePlayer(room, socket.id);
       if (room.phase === "lobby") {
-        io.to(pin).emit("lobby:update", { players: playerNames(room) });
+        io.to(pin).emit("lobby:update", { players: playerList(room) });
       }
     });
   });

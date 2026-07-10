@@ -1,6 +1,11 @@
 "use client";
 import React, { CSSProperties } from "react";
 import { INK, PAPER, CARD, RED, RULE_SOFT, SERIF, SANS, Q_CFG } from "./quiz-config";
+import { TEAMS, TEAM_COLORS, type Team } from "@/lib/teams";
+
+function teamColor(team: string): { bg: string; fg: string } {
+  return team in TEAM_COLORS ? TEAM_COLORS[team as Team] : { bg: INK, fg: "#fff" };
+}
 
 // ── Shapes ──────────────────────────────────────────────────
 function ShapePath({ idx, fill }: { idx: number; fill: string }) {
@@ -84,7 +89,7 @@ function HostTile({ idx, text, state }: { idx: number; text: string; state: "nor
 }
 
 // ── LOBBY ────────────────────────────────────────────────────
-export function HostLobby({ players, pin }: { players: string[]; pin: string }) {
+export function HostLobby({ players, pin }: { players: { name: string; team: string }[]; pin: string }) {
   const chunks = String(pin).match(/.{1,2}/g) || [pin];
   return (
     <div style={{ width: 1920, height: 1080, background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -106,20 +111,31 @@ export function HostLobby({ players, pin }: { players: string[]; pin: string }) 
           </div>
         </div>
         <div style={{ padding: "56px 70px", overflow: "hidden" }}>
-          <div style={{ fontFamily: SANS, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 22, color: RED, marginBottom: 26 }}>
+          <div style={{ fontFamily: SANS, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 22, color: RED, marginBottom: 18 }}>
             Bereits dabei — {players.length} Spieler
           </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginBottom: 24 }}>
+            {TEAMS.map(t => {
+              const col = TEAM_COLORS[t];
+              const count = players.filter(p => p.team === t).length;
+              return (
+                <span key={t} style={{ fontFamily: SANS, fontWeight: 800, fontSize: 18, textTransform: "uppercase", letterSpacing: ".08em", background: col.bg, color: col.fg, border: `3px solid ${INK}`, borderRadius: 8, padding: "6px 16px" }}>
+                  {t} · {count}
+                </span>
+              );
+            })}
+          </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignContent: "flex-start" }}>
-            {players.map((name, i) => (
-              <div key={name} style={{
+            {players.map((p) => (
+              <div key={p.name + p.team} style={{
                 fontFamily: SANS, fontWeight: 700, fontSize: 26,
                 border: `3px solid ${INK}`, borderRadius: 999,
                 padding: "10px 24px", background: "#fff",
                 display: "flex", alignItems: "center", gap: 10,
                 boxShadow: `3px 3px 0 ${INK}`,
               }}>
-                <span style={{ width: 10, height: 10, borderRadius: 999, background: Q_CFG[i % 4].bg, display: "inline-block", flexShrink: 0 }} />
-                {name}
+                <span style={{ width: 14, height: 14, borderRadius: 999, background: teamColor(p.team).bg, border: `2px solid ${INK}`, display: "inline-block", flexShrink: 0 }} />
+                {p.name}
               </div>
             ))}
           </div>
@@ -267,6 +283,60 @@ export function HostLeaderboard({ leaders, qi }: { leaders: { name: string; scor
             </span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ── TEAM STATS ───────────────────────────────────────────────
+export type TeamStatsRow = {
+  team: string;
+  playerCount: number;
+  totalScore: number;
+  avgScore: number;
+  mvp: { name: string; score: number } | null;
+};
+
+export function HostTeamStats({ teams }: { teams: TeamStatsRow[] }) {
+  return (
+    <div style={{ width: 1920, height: 1080, background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <HostBanner right="Team-Wertung" kicker="Durchschnitt pro Spieler entscheidet" />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 200px", gap: 20 }}>
+        <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 60, color: INK, letterSpacing: "-.01em", marginBottom: 6, alignSelf: "flex-start" }}>Team-Wertung</div>
+        {teams.map((t, i) => {
+          const empty = t.playerCount === 0;
+          const col = teamColor(t.team);
+          const isWinner = i === 0 && !empty;
+          return (
+            <div key={t.team} style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 30,
+              background: isWinner ? "#f4a800" : CARD,
+              border: `4px solid ${INK}`, borderRadius: 10,
+              padding: "18px 36px", boxShadow: `5px 5px 0 ${INK}`,
+              fontFamily: SANS, fontWeight: 800, fontSize: 40, color: INK,
+              opacity: empty ? 0.45 : 1,
+            }}>
+              <span style={{ fontSize: 44, width: 64, textAlign: "center", flexShrink: 0, lineHeight: 1 }}>
+                {empty ? "—" : i === 0 ? "🏆" : `${i + 1}.`}
+              </span>
+              <span style={{ width: 22, height: 22, borderRadius: 999, background: col.bg, border: `3px solid ${INK}`, flexShrink: 0 }} />
+              <span style={{ flex: 1 }}>
+                {t.team}
+                <span style={{ fontWeight: 600, fontSize: 26, opacity: 0.6, marginLeft: 18 }}>
+                  {t.playerCount} {t.playerCount === 1 ? "Spieler" : "Spieler"} · {t.totalScore.toLocaleString("de-DE")} Pkt. gesamt
+                </span>
+              </span>
+              {t.mvp && (
+                <span style={{ fontWeight: 700, fontSize: 26, opacity: 0.75, whiteSpace: "nowrap" }}>
+                  MVP: {t.mvp.name} ({t.mvp.score.toLocaleString("de-DE")})
+                </span>
+              )}
+              <span style={{ fontWeight: 900, letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums", fontSize: 44, whiteSpace: "nowrap" }}>
+                {empty ? "—" : `Ø ${t.avgScore.toLocaleString("de-DE")} Pkt.`}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

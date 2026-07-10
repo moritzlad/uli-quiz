@@ -1,3 +1,5 @@
+import { TEAMS, isTeam } from "./teams";
+
 export type Question = {
   text: string;
   opts: [string, string, string, string];
@@ -8,12 +10,13 @@ export type Question = {
 export type Player = {
   id: string;
   name: string;
+  team: string;
   score: number;
   lastAnswer?: number;
   answeredAt?: number;
 };
 
-export type Phase = "lobby" | "question" | "reveal" | "leaderboard" | "podium";
+export type Phase = "lobby" | "question" | "reveal" | "leaderboard" | "podium" | "teamstats";
 
 export type Room = {
   pin: string;
@@ -54,10 +57,10 @@ export function getRoom(pin: string): Room | undefined {
   return rooms.get(pin);
 }
 
-export function addPlayer(pin: string, id: string, name: string): Room | null {
+export function addPlayer(pin: string, id: string, name: string, team: string): Room | null {
   const room = rooms.get(pin);
-  if (!room || room.phase !== "lobby") return null;
-  room.players.set(id, { id, name, score: 0 });
+  if (!room || room.phase !== "lobby" || !isTeam(team)) return null;
+  room.players.set(id, { id, name, team, score: 0 });
   return room;
 }
 
@@ -65,8 +68,8 @@ export function removePlayer(room: Room, id: string): void {
   room.players.delete(id);
 }
 
-export function playerNames(room: Room): string[] {
-  return [...room.players.values()].map((p) => p.name);
+export function playerList(room: Room): { name: string; team: string }[] {
+  return [...room.players.values()].map((p) => ({ name: p.name, team: p.team }));
 }
 
 export function startQuestion(room: Room): void {
@@ -116,4 +119,36 @@ export function getLeaderboard(room: Room): { name: string; score: number }[] {
   return [...room.players.values()]
     .sort((a, b) => b.score - a.score)
     .map((p) => ({ name: p.name, score: p.score }));
+}
+
+export type TeamStats = {
+  team: string;
+  playerCount: number;
+  totalScore: number;
+  avgScore: number;
+  mvp: { name: string; score: number } | null;
+  members: { name: string; score: number }[];
+};
+
+export function getTeamStats(room: Room): TeamStats[] {
+  const players = [...room.players.values()];
+  return TEAMS.map((team) => {
+    const members = players
+      .filter((p) => p.team === team)
+      .sort((a, b) => b.score - a.score)
+      .map((p) => ({ name: p.name, score: p.score }));
+    const totalScore = members.reduce((sum, m) => sum + m.score, 0);
+    return {
+      team,
+      playerCount: members.length,
+      totalScore,
+      avgScore: members.length ? Math.round(totalScore / members.length) : 0,
+      mvp: members[0] ?? null,
+      members,
+    };
+  }).sort((a, b) => {
+    // Empty teams always rank last
+    if (!a.playerCount !== !b.playerCount) return a.playerCount ? -1 : 1;
+    return b.avgScore - a.avgScore;
+  });
 }
