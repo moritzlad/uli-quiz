@@ -1,0 +1,265 @@
+{
+  "questionBankId": "Fragen 60. Geburtstag Papa",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Was ist Ulis Geburtsdatum?",
+      "choices": [
+        { "id": "a", "label": "11.07.1966" },
+        { "id": "b", "label": "03.07.1966" },
+        { "id": "c", "label": "11.07.1965" },
+        { "id": "d", "label": "03.07.1965" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q2",
+      "type": "single_choice",
+      "category": "Zeitgeschichte",
+      "prompt": "Wer hat nicht am 03.07. Geburtstag?",
+      "choices": [
+        { "id": "a", "label": "Franz Kafka" },
+        { "id": "b", "label": "Sebasitan Vettel" },
+        { "id": "c", "label": "Tom Cruise" },
+        { "id": "d", "label": "Hermann Hesse" }
+      ],
+      "correctChoiceId": "d"
+    },
+    {
+      "id": "q3",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Wie hat Klemens früher zu Uli gesagt?",
+      "choices": [
+        { "id": "a", "label": "Uli" },
+        { "id": "b", "label": "Brüderchen" },
+        { "id": "c", "label": "Schwesterchen" },
+        { "id": "d", "label": "Geschwisterchen" }
+      ],
+      "correctChoiceId": "c"
+    },
+    {
+      "id": "q4",
+      "type": "single_choice",
+      "category": "Zeitgeschichte",
+      "prompt": "Welcher Astronaut blieb während der Apollo-11-Mission im Mondorbit und betrat den Mond nicht?",
+      "choices": [
+        { "id": "a", "label": "Buzz Aldrin" },
+        { "id": "b", "label": "Michael Collins" },
+        { "id": "c", "label": "Gus Grissom" },
+        { "id": "d", "label": "Neil Armstrong" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q5",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Wie geht ein berühmtes Zitat Ulis weiter: Lieber Gott ...",
+      "choices": [
+        { "id": "a", "label": "... Peugeot" },
+        { "id": "b", "label": "... Renault" },
+        { "id": "c", "label": "... Mercedes" },
+        { "id": "d", "label": "... Opel" }
+      ],
+      "correctChoiceId": "a"
+    },
+    {
+      "id": "q6",
+      "type": "single_choice",
+      "category": "Zeitgeschichte",
+      "prompt": "Der Ölpreisschock von 1973 wurde durch das OPEC-Embargo ausgelöst. Gegen welche Länder richtete sich das Embargo primär?",
+      "choices": [
+        { "id": "a", "label": "Länder, die die Sowjetunion unterstützten" },
+        { "id": "b", "label": "Länder, die Israel im Jom-Kippur-Krieg unterstützten" },
+        { "id": "c", "label": "Länder, die den Suezkanal nutzten" },
+        { "id": "d", "label": "Länder, die eigene Ölreserven erschlossen" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q7",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Warum war Uli als Kind im Sportunterricht unglücklich",
+      "choices": [
+        { "id": "a", "label": "Er wurde nie in ein Team gewählt" },
+        { "id": "b", "label": "Seine Lieblingssportarten kamen nie dran" },
+        { "id": "c", "label": "Seine Sporthose hatte keine Adidas-Streifen" },
+        { "id": "d", "label": "Seine Leistungen wurden unfair bewertet" }
+      ],
+      "correctChoiceId": "c"
+    },
+    {
+      "id": "q8",
+      "type": "single_choice",
+      "category": "Zeitgeschichte",
+      "prompt": "Das Terrorjahr 1977 erschütterte die Bundesrepublik. Welcher Arbeitgeberpräsident wurde im sogenannten Deutschen Herbst von der RAF entführt und ermordet?",
+      "choices": [
+        { "id": "a", "label": "Hanns Martin Schleyer" },
+        { "id": "b", "label": "Walter Scheel" },
+        { "id": "c", "label": "Helmut Schmidt" },
+        { "id": "d", "label": "Ernst Zimmermann" }
+      ],
+      "correctChoiceId": "a"
+    },
+    {
+      "id": "q9",
+      "type": "single_choice",
+      "category": "Zeitgeschichte",
+      "prompt": "Der INF-Vertrag von 1987 verpflichtete die USA und die UdSSR zur Abschaffung einer ganzen Klasse von Waffen. Was wurde verboten?",
+      "choices": [
+        { "id": "a", "label": "Interkontinentalraketen mit nuklearen Sprengköpfen" },
+        { "id": "b", "label": "Landgestützte Mittelstreckenraketen" },
+        { "id": "c", "label": "U-Boot-gestützte Marschflugkörper" },
+        { "id": "d", "label": "Taktische Atomwaffen unter 100 Kilotonnen" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q10",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Seit wann sind Uli und Uta zusammen?",
+      "choices": [
+        { "id": "a", "label": "31.12.1988" },
+        { "id": "b", "label": "12.02.1989" },
+        { "id": "c", "label": "31.12.1988 (Uli); 12.02.1989 (Uta)" },
+        { "id": "d", "label": "31.12.1988 (Uta); 12.02.1989 (Uli)" }
+      ],
+      "correctChoiceId": "d"
+    },
+    {
+      "id": "q11",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Was hat Uli während des Zivildienst in Rom gemacht?",
+      "choices": [
+        { "id": "a", "label": "den Pabst besucht" },
+        { "id": "b", "label": "Kreuze geschmuggelt" },
+        { "id": "c", "label": "einen Jugendausflug begleitet" },
+        { "id": "d", "label": "ein Konzert gespielt" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q12",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Welches der folgenden Haushaltsgeräte hat Uli mit in die Ehe gebracht?",
+      "choices": [
+        { "id": "a", "label": "Dampfbügeleisen \"Rowenta DE 13.1\"" },
+        { "id": "b", "label": "Küchengerät \"Mini Piffi 4\"" },
+        { "id": "c", "label": "Toaster \"Braun HT 3100\"" },
+        { "id": "d", "label": "Saugblaser \"Heinzelmann\"" }
+      ],
+      "correctChoiceId": "a"
+    },
+    {
+      "id": "q13",
+      "type": "single_choice",
+      "category": "Zeitgeschichte",
+      "prompt": "Die NATO-Osterweiterung Ende der 1990er war geopolitisch hochbrisant. Welche drei Länder traten 1999 als erste ehemalige Warschauer-Pakt-Staaten der NATO bei?",
+      "choices": [
+        { "id": "a", "label": "Polen, Slowakei, Rumänien" },
+        { "id": "b", "label": "Polen, Tschechien, Ungarn" },
+        { "id": "c", "label": "Tschechien, Bulgarien, Ungarn" },
+        { "id": "d", "label": "Polen, Estland, Litauen" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q14",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Was war Ulis Alternative, falls der Kinderwunsch unerhört bleibt?",
+      "choices": [
+        { "id": "a", "label": "Reisen" },
+        { "id": "b", "label": "Karriere machen" },
+        { "id": "c", "label": "eine Band gründen" },
+        { "id": "d", "label": "Golf spielen" }
+      ],
+      "correctChoiceId": "d"
+    },
+    {
+      "id": "q15",
+      "type": "single_choice",
+      "category": "Zeitgeschichte",
+      "prompt": "Die Finanzkrise 2008 wurde maßgeblich durch den Kollaps welcher US-Investmentbank ausgelöst?",
+      "choices": [
+        { "id": "a", "label": "Lehman Brothers" },
+        { "id": "b", "label": "Bear Stearns" },
+        { "id": "c", "label": "Merrill Lynch" },
+        { "id": "d", "label": "Goldman Sachs" }
+      ],
+      "correctChoiceId": "a"
+    },
+    {
+      "id": "q16",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Wie lange singt Uli schon im Chor \"Impuls\"?",
+      "choices": [
+        { "id": "a", "label": "8 Jahre" },
+        { "id": "b", "label": "10 Jahre" },
+        { "id": "c", "label": "12 Jahre" },
+        { "id": "d", "label": "14 Jahre" }
+      ],
+      "correctChoiceId": "c"
+    },
+    {
+      "id": "q17",
+      "type": "single_choice",
+      "category": "Zeitgeschichte",
+      "prompt": "Im Jahr 2021 kollabierte das afghanische Regime innerhalb weniger Tage, als US-Truppen abzogen. Nach wie vielen Jahren endete damit die längste Kriegsbeteiligung der USA in der Geschichte?",
+      "choices": [
+        { "id": "a", "label": "17 Jahre" },
+        { "id": "b", "label": "20 Jahre" },
+        { "id": "c", "label": "23 Jahre" },
+        { "id": "d", "label": "25 Jahre" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q18",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Welches der folgenden Geräte hat Uli noch nicht angeschafft?",
+      "choices": [
+        { "id": "a", "label": "Akku-Kettensäge" },
+        { "id": "b", "label": "tragbarer Kompressor" },
+        { "id": "c", "label": "3D-Drucker" },
+        { "id": "d", "label": "Sprenkelanlage für das Hochbeet" }
+      ],
+      "correctChoiceId": "c"
+    },
+    {
+      "id": "q19",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Wem hat Uli noch nicht die Hand geschüttelt?",
+      "choices": [
+        { "id": "a", "label": "Mutter Teresa" },
+        { "id": "b", "label": "Vizekanzler a.D. Sigmar Gabriel" },
+        { "id": "c", "label": "Pabst Johannes Paul II." },
+        { "id": "d", "label": "Ministerpräsident a.D. Erwin Teufel" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q20",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Welches der folgenden Länder hat Uli noch nicht besucht?",
+      "choices": [
+        { "id": "a", "label": "Island" },
+        { "id": "b", "label": "Namibia" },
+        { "id": "c", "label": "Russland" },
+        { "id": "d", "label": "Japan" }
+      ],
+      "correctChoiceId": "d"
+    }
+  ]
+}
