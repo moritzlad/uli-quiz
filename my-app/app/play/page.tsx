@@ -73,7 +73,7 @@ export default function PlayPage() {
         const isCorrect = selectedIdx === payload.correctIndex;
         setCorrect(isCorrect);
         if (isCorrect && answerTimeRef.current !== null) {
-          const elapsed = answerTimeRef.current - (payload.endsAt ?? endsAtRef.current - 20000);
+          const elapsed = answerTimeRef.current - (endsAtRef.current - 20000);
           const timeLimit = 20000;
           const bonus = Math.round(500 * Math.max(0, 1 - elapsed / timeLimit));
           const earned = 500 + bonus;
