@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getSocket } from "@/lib/socket";
 import {
@@ -33,7 +33,7 @@ interface PodiumPayload {
   leaders: { name: string; score: number }[];
 }
 
-export default function PlayPage() {
+function PlayPageInner() {
   const params   = useSearchParams();
   const pin      = params.get("pin") ?? "";
   const name     = params.get("name") ?? "";
@@ -146,5 +146,13 @@ export default function PlayPage() {
     <div style={{ height: "100dvh", background: "#0d0a07" }}>
       {renderScreen()}
     </div>
+  );
+}
+
+export default function PlayPage() {
+  return (
+    <Suspense fallback={null}>
+      <PlayPageInner />
+    </Suspense>
   );
 }
