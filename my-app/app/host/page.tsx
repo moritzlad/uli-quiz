@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { getSocket } from "@/lib/socket";
 import { SANS } from "@/components/quiz-config";
 import {
-  HostLobby, HostQuestion, HostReveal, HostLeaderboard, HostPodium, HostTeamStats,
+  HostLobby, HostQuestion, HostQuestionIntro, HostReveal, HostLeaderboard, HostPodium, HostTeamStats,
   type TeamStatsRow,
 } from "@/components/host-screens";
 
@@ -16,6 +16,7 @@ interface QuestionPayload {
   totalQ: number;
   text: string;
   opts: string[];
+  startsAt: number;
   endsAt: number;
 }
 
@@ -23,6 +24,7 @@ interface RevealPayload {
   qi: number;
   totalQ: number;
   correctIndex: number;
+  allCorrect?: boolean;
   dist: number[];
   question: { text: string; opts: string[] };
 }
@@ -45,6 +47,8 @@ export default function HostPage() {
   const [scale, setScale]       = useState(1);
   const [stageH, setStageH]     = useState(1080);
   const [countdown, setCountdown] = useState(COUNTDOWN_MAX);
+  const [preview, setPreview] = useState(false);
+  const [previewCountdown, setPreviewCountdown] = useState(5);
   const [answered, setAnswered] = useState(0);
   const [playerCount, setPlayerCount] = useState(0);
 
@@ -52,6 +56,7 @@ export default function HostPage() {
   const [qIdx, setQIdx]         = useState(0);
   const [totalQ, setTotalQ]     = useState(0);
   const [correctIndex, setCorrectIndex] = useState(0);
+  const [allCorrect, setAllCorrect] = useState(false);
   const [dist, setDist]         = useState([0, 0, 0, 0]);
   const [leaders, setLeaders]   = useState<{ name: string; score: number }[]>([]);
 
@@ -92,14 +97,20 @@ export default function HostPage() {
       setAnswered(0);
       setPhase("question");
 
-      const endsAt = payload.endsAt;
+      const { startsAt, endsAt } = payload;
       if (timerRef.current) clearInterval(timerRef.current);
       const tick = () => {
-        const remaining = Math.max(0, Math.round((endsAt - Date.now()) / 1000));
-        setCountdown(remaining);
+        const now = Date.now();
+        if (now < startsAt) {
+          setPreview(true);
+          setPreviewCountdown(Math.max(1, Math.ceil((startsAt - now) / 1000)));
+        } else {
+          setPreview(false);
+          setCountdown(Math.max(0, Math.round((endsAt - now) / 1000)));
+        }
       };
       tick();
-      timerRef.current = setInterval(tick, 500);
+      timerRef.current = setInterval(tick, 250);
     });
 
     socket.on("game:answered", ({ count, total }: { count: number; total: number }) => {
@@ -113,6 +124,7 @@ export default function HostPage() {
       setQIdx(payload.qi);
       setTotalQ(payload.totalQ);
       setCorrectIndex(payload.correctIndex);
+      setAllCorrect(!!payload.allCorrect);
       setDist(payload.dist);
       setPhase("reveal");
     });
@@ -159,6 +171,9 @@ export default function HostPage() {
       case "lobby":
         return <HostLobby players={players} pin={pin} />;
       case "question":
+        if (question && preview) {
+          return <HostQuestionIntro question={question} qi={qIdx} totalQ={totalQ} countdown={previewCountdown} />;
+        }
         return question ? (
           <HostQuestion
             question={question} qi={qIdx} totalQ={totalQ}
@@ -170,7 +185,7 @@ export default function HostPage() {
         return question ? (
           <HostReveal
             question={question} qi={qIdx} totalQ={totalQ}
-            dist={dist} correctIndex={correctIndex}
+            dist={dist} correctIndex={correctIndex} allCorrect={allCorrect}
           />
         ) : null;
       case "leaderboard":

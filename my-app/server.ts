@@ -5,7 +5,8 @@ import {
   createRoom, addPlayer, handleDisconnect, getRoom, playerList,
   startQuestion, recordAnswer, getAnsweredCount, getAnswerDist,
   scoreAnswers, getLeaderboard, getTeamStats, buildStateSnapshot,
-  type StateSnapshot,
+  allConnectedAnswered,
+  type StateSnapshot, type Room,
 } from "./lib/game";
 import { sampleQuestions } from "./lib/quiz-data";
 
@@ -19,6 +20,20 @@ const handler = app.getRequestHandler();
 app.prepare().then(() => {
   const httpServer = createServer(handler);
   const io = new Server(httpServer);
+
+  function revealQuestion(room: Room) {
+    scoreAnswers(room); // sets phase = "reveal"
+    const q = room.questions[room.currentIndex];
+    io.to(room.pin).emit("game:reveal", {
+      qi: room.currentIndex,
+      totalQ: room.questions.length,
+      correctIndex: q.correctIndex,
+      allCorrect: q.allCorrect,
+      dist: getAnswerDist(room),
+      question: { text: q.text, opts: q.opts },
+      leaders: getLeaderboard(room),
+    });
+  }
 
   io.on("connection", (socket) => {
     socket.on("host:create", (_payload, cb) => {
@@ -54,6 +69,7 @@ app.prepare().then(() => {
         totalQ: room.questions.length,
         text: q.text,
         opts: q.opts,
+        startsAt: room.questionStartsAt,
         endsAt: room.questionEndsAt,
       });
     });
@@ -66,6 +82,13 @@ app.prepare().then(() => {
       if (changed) {
         const count = getAnsweredCount(room);
         io.to(pin).emit("game:answered", { count, total: room.players.size });
+        if (allConnectedAnswered(room)) {
+          // Alle haben geantwortet → kurz die volle Leiste zeigen, dann auto-auflösen
+          const qi = room.currentIndex;
+          setTimeout(() => {
+            if (room.phase === "question" && room.currentIndex === qi) revealQuestion(room);
+          }, 1200);
+        }
       }
     });
 
@@ -74,16 +97,7 @@ app.prepare().then(() => {
       if (!room || socket.id !== room.hostId) return;
 
       if (room.phase === "question") {
-        scoreAnswers(room); // sets phase = "reveal"
-        const q = room.questions[room.currentIndex];
-        io.to(pin).emit("game:reveal", {
-          qi: room.currentIndex,
-          totalQ: room.questions.length,
-          correctIndex: q.correctIndex,
-          dist: getAnswerDist(room),
-          question: { text: q.text, opts: q.opts },
-          leaders: getLeaderboard(room),
-        });
+        revealQuestion(room);
       } else if (room.phase === "reveal") {
         if (room.currentIndex < room.questions.length - 1) {
           room.phase = "leaderboard";
@@ -107,6 +121,7 @@ app.prepare().then(() => {
           totalQ: room.questions.length,
           text: q.text,
           opts: q.opts,
+          startsAt: room.questionStartsAt,
           endsAt: room.questionEndsAt,
         });
       }

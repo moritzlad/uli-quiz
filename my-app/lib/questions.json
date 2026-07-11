@@ -31,103 +31,103 @@
       "id": "q3",
       "type": "single_choice",
       "category": "Personenfragen",
-      "prompt": "Wie hat Klemens früher zu Uli gesagt?",
+      "prompt": "Wie hat Klemens in Ulis ersten Lebenstagen über Uli gesagt?",
       "choices": [
-        { "id": "a", "label": "Uli" },
-        { "id": "b", "label": "Brüderchen" },
-        { "id": "c", "label": "Schwesterchen" },
-        { "id": "d", "label": "Geschwisterchen" }
+        { "id": "a", "label": "Ullerich" },
+        { "id": "b", "label": "Brüderle" },
+        { "id": "c", "label": "Schwesterle" },
+        { "id": "d", "label": "Bübele" }
       ],
       "correctChoiceId": "c"
     },
     {
       "id": "q4",
       "type": "single_choice",
-      "category": "Zeitgeschichte",
-      "prompt": "Welcher Astronaut blieb während der Apollo-11-Mission im Mondorbit und betrat den Mond nicht?",
+      "category": "Personenfragen",
+      "prompt": "Wofür bedankte sich der kleine Uli begeistert in der Kirche?",
       "choices": [
-        { "id": "a", "label": "Buzz Aldrin" },
-        { "id": "b", "label": "Michael Collins" },
-        { "id": "c", "label": "Gus Grissom" },
-        { "id": "d", "label": "Neil Armstrong" }
+        { "id": "a", "label": "Peugeot" },
+        { "id": "b", "label": "WauWau" },
+        { "id": "c", "label": "Lego" },
+        { "id": "d", "label": "Nutella" }
       ],
-      "correctChoiceId": "b"
+      "correctChoiceId": "a"
     },
     {
       "id": "q5",
       "type": "single_choice",
-      "category": "Personenfragen",
-      "prompt": "Wie geht ein berühmtes Zitat Ulis weiter: Lieber Gott ...",
+      "category": "Zeitgeschichte",
+      "prompt": "An welchem 3. Juli wurde die Firma \"Dow Jones\" gegründet, aus der der bekannte Börsenindex hervorging?",
       "choices": [
-        { "id": "a", "label": "... Peugeot" },
-        { "id": "b", "label": "... Renault" },
-        { "id": "c", "label": "... Mercedes" },
-        { "id": "d", "label": "... Opel" }
+        { "id": "a", "label": "3. Juli 1882" },
+        { "id": "b", "label": "3. Juli 1884" },
+        { "id": "c", "label": "3. Juli 1889" },
+        { "id": "d", "label": "3. Juli 1896" }
       ],
-      "correctChoiceId": "a"
+      "correctChoiceId": "b"
     },
     {
       "id": "q6",
       "type": "single_choice",
-      "category": "Zeitgeschichte",
-      "prompt": "Der Ölpreisschock von 1973 wurde durch das OPEC-Embargo ausgelöst. Gegen welche Länder richtete sich das Embargo primär?",
-      "choices": [
-        { "id": "a", "label": "Länder, die die Sowjetunion unterstützten" },
-        { "id": "b", "label": "Länder, die Israel im Jom-Kippur-Krieg unterstützten" },
-        { "id": "c", "label": "Länder, die den Suezkanal nutzten" },
-        { "id": "d", "label": "Länder, die eigene Ölreserven erschlossen" }
-      ],
-      "correctChoiceId": "b"
-    },
-    {
-      "id": "q7",
-      "type": "single_choice",
       "category": "Personenfragen",
-      "prompt": "Warum war Uli als Kind im Sportunterricht unglücklich",
+      "prompt": "Was hat Grundschul-Uli bei seiner Mutter durchgesetzt?",
       "choices": [
-        { "id": "a", "label": "Er wurde nie in ein Team gewählt" },
-        { "id": "b", "label": "Seine Lieblingssportarten kamen nie dran" },
-        { "id": "c", "label": "Seine Sporthose hatte keine Adidas-Streifen" },
-        { "id": "d", "label": "Seine Leistungen wurden unfair bewertet" }
+        { "id": "a", "label": "Sein Deutschland-Trikot bekam 1974 einen zweiten Stern aufgenäht" },
+        { "id": "b", "label": "Er durfte in Turnschuhen in die Kirche" },
+        { "id": "c", "label": "Seiner Sporthose wurde drei Adidas-Streifen aufgenäht" },
+        { "id": "d", "label": "Es gab Samstags Eis zum Frühstück" }
       ],
       "correctChoiceId": "c"
     },
     {
-      "id": "q8",
-      "type": "single_choice",
-      "category": "Zeitgeschichte",
-      "prompt": "Das Terrorjahr 1977 erschütterte die Bundesrepublik. Welcher Arbeitgeberpräsident wurde im sogenannten Deutschen Herbst von der RAF entführt und ermordet?",
-      "choices": [
-        { "id": "a", "label": "Hanns Martin Schleyer" },
-        { "id": "b", "label": "Walter Scheel" },
-        { "id": "c", "label": "Helmut Schmidt" },
-        { "id": "d", "label": "Ernst Zimmermann" }
-      ],
-      "correctChoiceId": "a"
-    },
-    {
-      "id": "q9",
-      "type": "single_choice",
-      "category": "Zeitgeschichte",
-      "prompt": "Der INF-Vertrag von 1987 verpflichtete die USA und die UdSSR zur Abschaffung einer ganzen Klasse von Waffen. Was wurde verboten?",
-      "choices": [
-        { "id": "a", "label": "Interkontinentalraketen mit nuklearen Sprengköpfen" },
-        { "id": "b", "label": "Landgestützte Mittelstreckenraketen" },
-        { "id": "c", "label": "U-Boot-gestützte Marschflugkörper" },
-        { "id": "d", "label": "Taktische Atomwaffen unter 100 Kilotonnen" }
-      ],
-      "correctChoiceId": "b"
-    },
-    {
-      "id": "q10",
+      "id": "q7",
       "type": "single_choice",
       "category": "Personenfragen",
       "prompt": "Seit wann sind Uli und Uta zusammen?",
       "choices": [
         { "id": "a", "label": "31.12.1988" },
         { "id": "b", "label": "12.02.1989" },
-        { "id": "c", "label": "31.12.1988 (Uli); 12.02.1989 (Uta)" },
-        { "id": "d", "label": "31.12.1988 (Uta); 12.02.1989 (Uli)" }
+        { "id": "c", "label": "31.12.1988 (laut Uli); 12.02.1989 (laut Uta)" },
+        { "id": "d", "label": "31.12.1988 (laut Uta); 12.02.1989 (laut Uli)" }
+      ],
+      "correctChoiceId": "d"
+    },
+    {
+      "id": "q8",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Uli wurde während des Zivildienst nach Rom geschickt, um...",
+      "choices": [
+        { "id": "a", "label": "... der Schweizer Garde eine Nachticht zu übermitteln" },
+        { "id": "b", "label": "... zweitausend Kreuze nach Deutschland zu schmuggeln" },
+        { "id": "c", "label": "... eine eine Unterschrift von Kardinal Wetter zu erhalten" },
+        { "id": "d", "label": "... auf einem Konzert auf dem Petersplatz zu spielen" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q9",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Welches der folgenden Haushaltsgeräte hat Uli mit in die Ehe gebracht?",
+      "choices": [
+        { "id": "a", "label": "Dampfbügeleisen \"Rowenta DE 13.1\"" },
+        { "id": "b", "label": "Küchenmaschine \"Mini Piffi 4\"" },
+        { "id": "c", "label": "Toaster \"Braun HT 3100\"" },
+        { "id": "d", "label": "Saugblaser \"Heinzelmann\"" }
+      ],
+      "correctChoiceId": "a"
+    },
+    {
+      "id": "q10",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Was schlug Uli Uta vor, falls es mit dem Kinderwunsch nichts wird?",
+      "choices": [
+        { "id": "a", "label": "Eine Weltreise" },
+        { "id": "b", "label": "Einen Berhardiner zu adoptieren" },
+        { "id": "c", "label": "Einen Motorradführerschein zu machen" },
+        { "id": "d", "label": "Golf spielen" }
       ],
       "correctChoiceId": "d"
     },
@@ -135,95 +135,17 @@
       "id": "q11",
       "type": "single_choice",
       "category": "Personenfragen",
-      "prompt": "Was hat Uli während des Zivildienst in Rom gemacht?",
+      "prompt": "Wie heißt der Chor, in dem Uli seit 12 Jahren singt?",
       "choices": [
-        { "id": "a", "label": "den Pabst besucht" },
-        { "id": "b", "label": "Kreuze geschmuggelt" },
-        { "id": "c", "label": "einen Jugendausflug begleitet" },
-        { "id": "d", "label": "ein Konzert gespielt" }
-      ],
-      "correctChoiceId": "b"
-    },
-    {
-      "id": "q12",
-      "type": "single_choice",
-      "category": "Personenfragen",
-      "prompt": "Welches der folgenden Haushaltsgeräte hat Uli mit in die Ehe gebracht?",
-      "choices": [
-        { "id": "a", "label": "Dampfbügeleisen \"Rowenta DE 13.1\"" },
-        { "id": "b", "label": "Küchengerät \"Mini Piffi 4\"" },
-        { "id": "c", "label": "Toaster \"Braun HT 3100\"" },
-        { "id": "d", "label": "Saugblaser \"Heinzelmann\"" }
-      ],
-      "correctChoiceId": "a"
-    },
-    {
-      "id": "q13",
-      "type": "single_choice",
-      "category": "Zeitgeschichte",
-      "prompt": "Die NATO-Osterweiterung Ende der 1990er war geopolitisch hochbrisant. Welche drei Länder traten 1999 als erste ehemalige Warschauer-Pakt-Staaten der NATO bei?",
-      "choices": [
-        { "id": "a", "label": "Polen, Slowakei, Rumänien" },
-        { "id": "b", "label": "Polen, Tschechien, Ungarn" },
-        { "id": "c", "label": "Tschechien, Bulgarien, Ungarn" },
-        { "id": "d", "label": "Polen, Estland, Litauen" }
-      ],
-      "correctChoiceId": "b"
-    },
-    {
-      "id": "q14",
-      "type": "single_choice",
-      "category": "Personenfragen",
-      "prompt": "Was war Ulis Alternative, falls der Kinderwunsch unerhört bleibt?",
-      "choices": [
-        { "id": "a", "label": "Reisen" },
-        { "id": "b", "label": "Karriere machen" },
-        { "id": "c", "label": "eine Band gründen" },
-        { "id": "d", "label": "Golf spielen" }
-      ],
-      "correctChoiceId": "d"
-    },
-    {
-      "id": "q15",
-      "type": "single_choice",
-      "category": "Zeitgeschichte",
-      "prompt": "Die Finanzkrise 2008 wurde maßgeblich durch den Kollaps welcher US-Investmentbank ausgelöst?",
-      "choices": [
-        { "id": "a", "label": "Lehman Brothers" },
-        { "id": "b", "label": "Bear Stearns" },
-        { "id": "c", "label": "Merrill Lynch" },
-        { "id": "d", "label": "Goldman Sachs" }
-      ],
-      "correctChoiceId": "a"
-    },
-    {
-      "id": "q16",
-      "type": "single_choice",
-      "category": "Personenfragen",
-      "prompt": "Wie lange singt Uli schon im Chor \"Impuls\"?",
-      "choices": [
-        { "id": "a", "label": "8 Jahre" },
-        { "id": "b", "label": "10 Jahre" },
-        { "id": "c", "label": "12 Jahre" },
-        { "id": "d", "label": "14 Jahre" }
+        { "id": "a", "label": "Energie" },
+        { "id": "b", "label": "Resonanz" },
+        { "id": "c", "label": "Impuls" },
+        { "id": "d", "label": "Amplitude" }
       ],
       "correctChoiceId": "c"
     },
     {
-      "id": "q17",
-      "type": "single_choice",
-      "category": "Zeitgeschichte",
-      "prompt": "Im Jahr 2021 kollabierte das afghanische Regime innerhalb weniger Tage, als US-Truppen abzogen. Nach wie vielen Jahren endete damit die längste Kriegsbeteiligung der USA in der Geschichte?",
-      "choices": [
-        { "id": "a", "label": "17 Jahre" },
-        { "id": "b", "label": "20 Jahre" },
-        { "id": "c", "label": "23 Jahre" },
-        { "id": "d", "label": "25 Jahre" }
-      ],
-      "correctChoiceId": "b"
-    },
-    {
-      "id": "q18",
+      "id": "q12",
       "type": "single_choice",
       "category": "Personenfragen",
       "prompt": "Welches der folgenden Geräte hat Uli noch nicht angeschafft?",
@@ -236,7 +158,7 @@
       "correctChoiceId": "c"
     },
     {
-      "id": "q19",
+      "id": "q13",
       "type": "single_choice",
       "category": "Personenfragen",
       "prompt": "Wem hat Uli noch nicht die Hand geschüttelt?",
@@ -249,7 +171,7 @@
       "correctChoiceId": "b"
     },
     {
-      "id": "q20",
+      "id": "q14",
       "type": "single_choice",
       "category": "Personenfragen",
       "prompt": "Welches der folgenden Länder hat Uli noch nicht besucht?",
@@ -260,6 +182,32 @@
         { "id": "d", "label": "Japan" }
       ],
       "correctChoiceId": "d"
+    },
+      {
+      "id": "q15",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Welchen Merchandise-Artikel zur US-WM 1994 hat Uli seither in regem Gebrauch?",
+      "choices": [
+        { "id": "a", "label": "Ein Matthäus-Detuschlandtrikot" },
+        { "id": "b", "label": "Ein Handtuch mit allen Teihnehmerflaggen" },
+        { "id": "c", "label": "Ein WM-Weizenglas" },
+        { "id": "d", "label": "Eine Kassette mit dem WM-Song \"Far Away in America\"" }
+      ],
+      "correctChoiceId": "b"
+    },
+    {
+      "id": "q16",
+      "type": "single_choice",
+      "category": "Personenfragen",
+      "prompt": "Was wünschen wir Uli heute?",
+      "choices": [
+        { "id": "a", "label": "Alles Liebe" },
+        { "id": "b", "label": "Alles Gute" },
+        { "id": "c", "label": "Viel Gesundheit" },
+        { "id": "d", "label": "Ein langes Leben" }
+      ],
+      "correctChoiceId": "all"
     }
   ]
 }

@@ -156,6 +156,36 @@ export function PlayerWaiting({ name, team, players, mode = "lobby" }: { name: s
   );
 }
 
+// ── QUESTION INTRO (5s Vorschau: nur die Frage) ──────────────
+export function PlayerQuestionIntro({
+  question, qi,
+}: {
+  question: { text: string; category?: string };
+  qi: number;
+}) {
+  const catCol = question.category ? (CATEGORY_COLORS[question.category] ?? { bg: P_INK, color: "#fff" }) : null;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: P_PAPER }}>
+      <PlayerBanner />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 22px", gap: 16, textAlign: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ fontFamily: P_SANS, fontWeight: 800, fontSize: 12, textTransform: "uppercase", letterSpacing: ".18em", color: P_RED }}>Frage {qi + 1}</div>
+          {catCol && question.category && (
+            <span style={{ fontFamily: P_SANS, fontWeight: 800, fontSize: 10, textTransform: "uppercase", letterSpacing: ".12em", background: catCol.bg, color: catCol.color, borderRadius: 4, padding: "2px 7px" }}>
+              {question.category}
+            </span>
+          )}
+        </div>
+        <h1 style={{ fontFamily: P_SERIF, fontWeight: 900, fontSize: 30, lineHeight: 1.2, margin: 0, color: P_INK }}>{question.text}</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
+          <span style={{ width: 9, height: 9, borderRadius: 999, background: P_RED, display: "inline-block", animation: "jPulse 1.3s ease-in-out infinite" }} />
+          <span style={{ fontFamily: P_SANS, fontWeight: 700, fontSize: 14, color: "#5b5547" }}>Gleich kannst du antworten …</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── ANSWERING ────────────────────────────────────────────────
 export function PlayerAnswering({
   question, qi, onAnswer, selectedIdx,

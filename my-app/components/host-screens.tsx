@@ -95,16 +95,20 @@ export function HostLobby({ players, pin }: { players: { name: string; team: str
     <div style={{ width: "100%", height: "100%", background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <HostBanner right="Sonderausgabe Nr. 60" />
       <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "56px 80px", borderRight: `2px solid ${RULE_SOFT}`, gap: 0 }}>
-          <div style={{ fontFamily: SANS, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".2em", fontSize: 24, color: RED, marginBottom: 32 }}>Wie spielst du mit?</div>
-          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 20, color: INK, opacity: 0.5, marginBottom: 16 }}>Gehe auf</div>
-          <div style={{ fontFamily: SERIF, fontWeight: 800, fontSize: 44, color: INK, border: `3px solid ${INK}`, borderRadius: 10, padding: "10px 36px", marginBottom: 44, background: "#fff", boxShadow: `4px 4px 0 ${INK}` }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 80px", borderRight: `2px solid ${RULE_SOFT}`, gap: 0 }}>
+          <div style={{ fontFamily: SANS, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".2em", fontSize: 24, color: RED, marginBottom: 22 }}>Wie spielst du mit?</div>
+          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 20, color: INK, opacity: 0.5, marginBottom: 14 }}>Scanne den Code</div>
+          <div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 14, padding: 20, boxShadow: `8px 8px 0 ${INK}`, marginBottom: 18, lineHeight: 0 }}>
+            <img src="/uli_quiz_qr.png" alt="QR-Code zum Quiz" width={370} height={370} style={{ display: "block", width: 340, height: 340, imageRendering: "pixelated" }} />
+          </div>
+          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 17, color: INK, opacity: 0.5, marginBottom: 10 }}>oder gehe auf</div>
+          <div style={{ fontFamily: SERIF, fontWeight: 800, fontSize: 30, color: INK, border: `3px solid ${INK}`, borderRadius: 10, padding: "8px 28px", marginBottom: 26, background: "#fff", boxShadow: `4px 4px 0 ${INK}` }}>
             jubilar60.de/quiz
           </div>
-          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 20, color: INK, opacity: 0.5, marginBottom: 20 }}>und gib diesen Code ein</div>
-          <div style={{ display: "flex", gap: 18 }}>
+          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 17, color: INK, opacity: 0.5, marginBottom: 14 }}>und gib diesen Code ein</div>
+          <div style={{ display: "flex", gap: 16 }}>
             {chunks.map((c, i) => (
-              <div key={i} style={{ fontFamily: SANS, fontWeight: 900, fontSize: 152, lineHeight: 1, color: INK, background: "#fff", border: `4px solid ${INK}`, borderRadius: 14, padding: "8px 30px", boxShadow: `8px 8px 0 ${INK}`, letterSpacing: "-.01em" }}>
+              <div key={i} style={{ fontFamily: SANS, fontWeight: 900, fontSize: 104, lineHeight: 1, color: INK, background: "#fff", border: `4px solid ${INK}`, borderRadius: 14, padding: "8px 26px", boxShadow: `6px 6px 0 ${INK}`, letterSpacing: "-.01em" }}>
                 {c}
               </div>
             ))}
@@ -165,6 +169,31 @@ function CategoryBadge({ category, size = "host" }: { category?: string; size?: 
   );
 }
 
+// ── QUESTION INTRO (5s Vorschau: nur die Frage) ──────────────
+export function HostQuestionIntro({
+  question, qi, totalQ, countdown,
+}: {
+  question: { text: string; category?: string };
+  qi: number; totalQ: number; countdown: number;
+}) {
+  return (
+    <div style={{ width: "100%", height: "100%", background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <HostBanner right={`Frage ${qi + 1} von ${totalQ}`} kicker="Gleich geht's los — lies die Frage!" />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 140px", gap: 34, textAlign: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+          <div style={{ fontFamily: SANS, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".2em", fontSize: 26, color: RED }}>Frage {qi + 1} von {totalQ}</div>
+          <CategoryBadge category={question.category} size="host" />
+        </div>
+        <h1 style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 108, lineHeight: 1.04, margin: 0, color: INK, letterSpacing: "-.015em", maxWidth: "16ch" }}>{question.text}</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 10 }}>
+          <span style={{ fontFamily: SANS, fontWeight: 700, fontSize: 24, textTransform: "uppercase", letterSpacing: ".14em", color: INK, opacity: 0.5 }}>Antworten in</span>
+          <span style={{ fontFamily: SANS, fontWeight: 900, fontSize: 64, lineHeight: 1, color: RED, fontVariantNumeric: "tabular-nums", minWidth: 70, textAlign: "center" }}>{countdown}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── QUESTION ─────────────────────────────────────────────────
 export function HostQuestion({
   question, qi, totalQ, countdown, maxCountdown, answered, playerCount,
@@ -205,10 +234,10 @@ export function HostQuestion({
 
 // ── REVEAL ───────────────────────────────────────────────────
 export function HostReveal({
-  question, qi, totalQ, dist, correctIndex,
+  question, qi, totalQ, dist, correctIndex, allCorrect,
 }: {
   question: { text: string; opts: string[]; category?: string };
-  qi: number; totalQ: number; dist: number[]; correctIndex: number;
+  qi: number; totalQ: number; dist: number[]; correctIndex: number; allCorrect?: boolean;
 }) {
   const total = Math.max(dist.reduce((a, b) => a + b, 0), 1);
   const maxBar = Math.max(...dist, 1);
@@ -223,7 +252,7 @@ export function HostReveal({
           <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 52, lineHeight: 1.05, color: INK, maxWidth: "22ch" }}>{question.text}</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, flex: 1 }}>
             {question.opts.map((opt, i) => (
-              <HostTile key={i} idx={i} text={opt} state={i === correctIndex ? "correct" : "wrong"} />
+              <HostTile key={i} idx={i} text={opt} state={allCorrect || i === correctIndex ? "correct" : "wrong"} />
             ))}
           </div>
         </div>

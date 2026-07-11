@@ -5,6 +5,7 @@ export type Question = {
   opts: [string, string, string, string];
   correctIndex: 0 | 1 | 2 | 3;
   category?: string;
+  allCorrect?: boolean;
 };
 
 export type Player = {
@@ -28,10 +29,12 @@ export type Room = {
   currentIndex: number;
   phase: Phase;
   players: Map<string, Player>;
+  questionStartsAt?: number;
   questionEndsAt?: number;
 };
 
 const QUESTION_TIME_MS = 20_000;
+export const PREVIEW_TIME_MS = 5_000;
 
 const rooms = new Map<string, Room>();
 
@@ -94,7 +97,8 @@ export function playerList(room: Room): { name: string; team: string }[] {
 export function startQuestion(room: Room): void {
   room.currentIndex++;
   room.phase = "question";
-  room.questionEndsAt = Date.now() + QUESTION_TIME_MS;
+  room.questionStartsAt = Date.now() + PREVIEW_TIME_MS;
+  room.questionEndsAt = room.questionStartsAt + QUESTION_TIME_MS;
   room.players.forEach((p) => {
     p.lastAnswer = undefined;
     p.answeredAt = undefined;
@@ -105,6 +109,8 @@ export function startQuestion(room: Room): void {
 export function recordAnswer(room: Room, id: string, answerIdx: number): boolean {
   const player = room.players.get(id);
   if (!player || player.lastAnswer !== undefined || room.phase !== "question") return false;
+  // No answers during the question preview
+  if (room.questionStartsAt !== undefined && Date.now() < room.questionStartsAt) return false;
   player.lastAnswer = answerIdx;
   player.answeredAt = Date.now();
   return true;
@@ -112,6 +118,11 @@ export function recordAnswer(room: Room, id: string, answerIdx: number): boolean
 
 export function getAnsweredCount(room: Room): number {
   return [...room.players.values()].filter((p) => p.lastAnswer !== undefined).length;
+}
+
+export function allConnectedAnswered(room: Room): boolean {
+  const connected = [...room.players.values()].filter((p) => p.connected);
+  return connected.length > 0 && connected.every((p) => p.lastAnswer !== undefined);
 }
 
 export function getAnswerDist(room: Room): number[] {
@@ -126,7 +137,7 @@ export function scoreAnswers(room: Room): void {
   const q = room.questions[room.currentIndex];
   const start = (room.questionEndsAt ?? Date.now()) - QUESTION_TIME_MS;
   room.players.forEach((player) => {
-    if (player.lastAnswer === q.correctIndex && player.answeredAt !== undefined) {
+    if ((q.allCorrect || player.lastAnswer === q.correctIndex) && player.answeredAt !== undefined) {
       const elapsed = player.answeredAt - start;
       const bonus = Math.round(500 * Math.max(0, 1 - elapsed / QUESTION_TIME_MS));
       player.lastEarned = 500 + bonus;
@@ -153,8 +164,10 @@ export type StateSnapshot = {
   yourAnswer: number | null;
   pointsEarned?: number;
   question?: { text: string; opts: string[] };
+  startsAt?: number;
   endsAt?: number;
   correctIndex?: number;
+  allCorrect?: boolean;
   dist?: number[];
   leaders?: ReturnType<typeof getLeaderboard>;
   teams?: TeamStats[];
@@ -173,10 +186,12 @@ export function buildStateSnapshot(room: Room, playerId: string): StateSnapshot 
   const q = room.questions[room.currentIndex];
   if (room.phase === "question" && q) {
     snapshot.question = { text: q.text, opts: q.opts };
+    snapshot.startsAt = room.questionStartsAt;
     snapshot.endsAt = room.questionEndsAt;
   } else if (room.phase === "reveal" && q) {
     snapshot.question = { text: q.text, opts: q.opts };
     snapshot.correctIndex = q.correctIndex;
+    snapshot.allCorrect = q.allCorrect;
     snapshot.dist = getAnswerDist(room);
     snapshot.leaders = getLeaderboard(room);
     snapshot.pointsEarned = player?.lastEarned ?? 0;

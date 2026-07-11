@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getSocket } from "@/lib/socket";
 import { getPlayerId, loadSession } from "@/lib/player-session";
 import {
-  PlayerWaiting, PlayerAnswering, PlayerResult, PlayerFinal,
+  PlayerWaiting, PlayerQuestionIntro, PlayerAnswering, PlayerResult, PlayerFinal,
 } from "@/components/player-screens";
 
 type Phase = "waiting" | "question" | "reveal" | "leaderboard" | "podium";
@@ -14,6 +14,7 @@ interface QuestionPayload {
   totalQ: number;
   text: string;
   opts: string[];
+  startsAt: number;
   endsAt: number;
 }
 
@@ -23,6 +24,7 @@ interface RevealPayload {
   qi: number;
   totalQ: number;
   correctIndex: number;
+  allCorrect?: boolean;
   dist: number[];
   question: { text: string; opts: string[] };
   leaders: Leader[];
@@ -50,8 +52,10 @@ interface StateSnapshot {
   yourAnswer: number | null;
   pointsEarned?: number;
   question?: { text: string; opts: string[] };
+  startsAt?: number;
   endsAt?: number;
   correctIndex?: number;
+  allCorrect?: boolean;
   dist?: number[];
   leaders?: Leader[];
   teams?: TeamStatsPayload["teams"];
@@ -71,6 +75,7 @@ function PlayPageInner() {
   const [question, setQuestion]     = useState<{ text: string; opts: string[] } | null>(null);
   const [qi, setQi]                 = useState(0);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [answersOpen, setAnswersOpen] = useState(true);
   const [correct, setCorrect]       = useState(false);
   const [pointsEarned, setPointsEarned] = useState(0);
   const [totalScore, setTotalScore] = useState(0);
@@ -78,6 +83,7 @@ function PlayPageInner() {
   const [totalPlayers, setTotalPlayers] = useState(1);
 
   const selectedIdxRef = useRef<number | null>(null);
+  const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!pin || !name || !team) {
@@ -95,6 +101,18 @@ function PlayPageInner() {
       if (idx >= 0) setTotalScore(leaders[idx].score);
     }
 
+    // Antworten erst nach der 5s-Vorschau freischalten
+    function openAnswersAt(startsAt?: number) {
+      if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
+      const wait = (startsAt ?? 0) - Date.now();
+      if (wait > 0) {
+        setAnswersOpen(false);
+        previewTimerRef.current = setTimeout(() => setAnswersOpen(true), wait);
+      } else {
+        setAnswersOpen(true);
+      }
+    }
+
     function applySnapshot(snap: StateSnapshot) {
       setLobbyPlayers(snap.players);
       setTotalScore(snap.score);
@@ -107,11 +125,12 @@ function PlayPageInner() {
           break;
         case "question":
           if (snap.question) setQuestion(snap.question);
+          openAnswersAt(snap.startsAt);
           setPhase("question");
           break;
         case "reveal":
           if (snap.question) setQuestion(snap.question);
-          setCorrect(snap.yourAnswer !== null && snap.yourAnswer === snap.correctIndex);
+          setCorrect(snap.yourAnswer !== null && (snap.allCorrect || snap.yourAnswer === snap.correctIndex));
           setPointsEarned(snap.pointsEarned ?? 0);
           applyLeaders(snap.leaders);
           setPhase("reveal");
@@ -157,6 +176,7 @@ function PlayPageInner() {
       setQi(payload.qi);
       setSelectedIdx(null);
       selectedIdxRef.current = null;
+      openAnswersAt(payload.startsAt);
       setPhase("question");
     });
 
@@ -166,7 +186,7 @@ function PlayPageInner() {
         const me = payload.leaders[idx];
         // Server-recorded answer, not the local selection — they can differ
         // if the answer packet was lost or arrived after the deadline.
-        setCorrect(me.answer !== null && me.answer === payload.correctIndex);
+        setCorrect(me.answer !== null && (payload.allCorrect || me.answer === payload.correctIndex));
         setSelectedIdx(me.answer);
         selectedIdxRef.current = me.answer;
         setPointsEarned(me.earned);
@@ -195,6 +215,7 @@ function PlayPageInner() {
     });
 
     return () => {
+      if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
       socket.off("connect", rejoin);
       socket.off("lobby:update");
       socket.off("game:question");
@@ -218,9 +239,9 @@ function PlayPageInner() {
       case "leaderboard":
         return <PlayerWaiting name={name} team={team} players={lobbyPlayers} mode={phase === "leaderboard" ? "between" : "lobby"} />;
       case "question":
-        return question ? (
-          <PlayerAnswering question={question} qi={qi} onAnswer={handleAnswer} selectedIdx={selectedIdx} />
-        ) : null;
+        if (!question) return null;
+        if (!answersOpen) return <PlayerQuestionIntro question={question} qi={qi} />;
+        return <PlayerAnswering question={question} qi={qi} onAnswer={handleAnswer} selectedIdx={selectedIdx} />;
       case "reveal":
         return (
           <PlayerResult
