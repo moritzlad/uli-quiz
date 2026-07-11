@@ -95,20 +95,20 @@ export function HostLobby({ players, pin }: { players: { name: string; team: str
     <div style={{ width: "100%", height: "100%", background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <HostBanner right="Sonderausgabe Nr. 60" />
       <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 80px", borderRight: `2px solid ${RULE_SOFT}`, gap: 0 }}>
-          <div style={{ fontFamily: SANS, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".2em", fontSize: 24, color: RED, marginBottom: 22 }}>Wie spielst du mit?</div>
-          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 20, color: INK, opacity: 0.5, marginBottom: 14 }}>Scanne den Code</div>
-          <div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 14, padding: 20, boxShadow: `8px 8px 0 ${INK}`, marginBottom: 18, lineHeight: 0 }}>
-            <img src="/uli_quiz_qr.png" alt="QR-Code zum Quiz" width={370} height={370} style={{ display: "block", width: 340, height: 340, imageRendering: "pixelated" }} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 80px", borderRight: `2px solid ${RULE_SOFT}`, gap: 0, minHeight: 0, overflow: "hidden" }}>
+          <div style={{ fontFamily: SANS, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".2em", fontSize: 24, color: RED, marginBottom: 16 }}>Wie spielst du mit?</div>
+          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 19, color: INK, opacity: 0.5, marginBottom: 10 }}>Scanne den Code</div>
+          <div style={{ background: "#fff", border: `4px solid ${INK}`, borderRadius: 14, padding: 14, boxShadow: `8px 8px 0 ${INK}`, marginBottom: 14, lineHeight: 0 }}>
+            <img src="/uli_quiz_qr.png" alt="QR-Code zum Quiz" width={370} height={370} style={{ display: "block", width: 270, height: 270, imageRendering: "pixelated" }} />
           </div>
-          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 17, color: INK, opacity: 0.5, marginBottom: 10 }}>oder gehe auf</div>
-          <div style={{ fontFamily: SERIF, fontWeight: 800, fontSize: 30, color: INK, border: `3px solid ${INK}`, borderRadius: 10, padding: "8px 28px", marginBottom: 26, background: "#fff", boxShadow: `4px 4px 0 ${INK}` }}>
+          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 16, color: INK, opacity: 0.5, marginBottom: 8 }}>oder gehe auf</div>
+          <div style={{ fontFamily: SERIF, fontWeight: 800, fontSize: 27, color: INK, border: `3px solid ${INK}`, borderRadius: 10, padding: "6px 24px", marginBottom: 18, background: "#fff", boxShadow: `4px 4px 0 ${INK}` }}>
             jubilar60.de/quiz
           </div>
-          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 17, color: INK, opacity: 0.5, marginBottom: 14 }}>und gib diesen Code ein</div>
-          <div style={{ display: "flex", gap: 16 }}>
+          <div style={{ fontFamily: SANS, fontWeight: 600, textTransform: "uppercase", letterSpacing: ".18em", fontSize: 16, color: INK, opacity: 0.5, marginBottom: 10 }}>und gib diesen Code ein</div>
+          <div style={{ display: "flex", gap: 14 }}>
             {chunks.map((c, i) => (
-              <div key={i} style={{ fontFamily: SANS, fontWeight: 900, fontSize: 104, lineHeight: 1, color: INK, background: "#fff", border: `4px solid ${INK}`, borderRadius: 14, padding: "8px 26px", boxShadow: `6px 6px 0 ${INK}`, letterSpacing: "-.01em" }}>
+              <div key={i} style={{ fontFamily: SANS, fontWeight: 900, fontSize: 88, lineHeight: 1, color: INK, background: "#fff", border: `4px solid ${INK}`, borderRadius: 14, padding: "8px 22px", boxShadow: `6px 6px 0 ${INK}`, letterSpacing: "-.01em" }}>
                 {c}
               </div>
             ))}
