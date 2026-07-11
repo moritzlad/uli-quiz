@@ -31,7 +31,7 @@
       "id": "q3",
       "type": "single_choice",
       "category": "Personenfragen",
-      "prompt": "Wie hat Klemens in Ulis ersten Lebenstagen über Uli gesagt?",
+      "prompt": "Wie hat Klemens in Ulis ersten Lebenstagen zu Uli gesagt?",
       "choices": [
         { "id": "a", "label": "Ullerich" },
         { "id": "b", "label": "Brüderle" },
@@ -57,12 +57,12 @@
       "id": "q5",
       "type": "single_choice",
       "category": "Zeitgeschichte",
-      "prompt": "An welchem 3. Juli wurde die Firma \"Dow Jones\" gegründet, aus der der bekannte Börsenindex hervorging?",
+      "prompt": "Wann wurde die Firma \"Dow Jones\" gegründet, aus der der bekannte Börsenindex hervorging?",
       "choices": [
-        { "id": "a", "label": "3. Juli 1882" },
+        { "id": "a", "label": "3. Juli 1864" },
         { "id": "b", "label": "3. Juli 1884" },
-        { "id": "c", "label": "3. Juli 1889" },
-        { "id": "d", "label": "3. Juli 1896" }
+        { "id": "c", "label": "3. Juli 1924" },
+        { "id": "d", "label": "3. Juli 1954" }
       ],
       "correctChoiceId": "b"
     },
@@ -75,7 +75,7 @@
         { "id": "a", "label": "Sein Deutschland-Trikot bekam 1974 einen zweiten Stern aufgenäht" },
         { "id": "b", "label": "Er durfte in Turnschuhen in die Kirche" },
         { "id": "c", "label": "Seiner Sporthose wurde drei Adidas-Streifen aufgenäht" },
-        { "id": "d", "label": "Es gab Samstags Eis zum Frühstück" }
+        { "id": "d", "label": "Es gab samstags Eis zum Frühstück" }
       ],
       "correctChoiceId": "c"
     },
@@ -98,7 +98,7 @@
       "category": "Personenfragen",
       "prompt": "Uli wurde während des Zivildienst nach Rom geschickt, um...",
       "choices": [
-        { "id": "a", "label": "... der Schweizer Garde eine Nachticht zu übermitteln" },
+        { "id": "a", "label": "... der Schweizer Garde eine Nachricht zu übermitteln" },
         { "id": "b", "label": "... zweitausend Kreuze nach Deutschland zu schmuggeln" },
         { "id": "c", "label": "... eine eine Unterschrift von Kardinal Wetter zu erhalten" },
         { "id": "d", "label": "... auf einem Konzert auf dem Petersplatz zu spielen" }
@@ -126,7 +126,7 @@
       "choices": [
         { "id": "a", "label": "Eine Weltreise" },
         { "id": "b", "label": "Einen Berhardiner zu adoptieren" },
-        { "id": "c", "label": "Einen Motorradführerschein zu machen" },
+        { "id": "c", "label": "Den Motorradführerschein machen" },
         { "id": "d", "label": "Golf spielen" }
       ],
       "correctChoiceId": "d"
@@ -165,7 +165,7 @@
       "choices": [
         { "id": "a", "label": "Mutter Teresa" },
         { "id": "b", "label": "Vizekanzler a.D. Sigmar Gabriel" },
-        { "id": "c", "label": "Pabst Johannes Paul II." },
+        { "id": "c", "label": "Papst Johannes Paul II." },
         { "id": "d", "label": "Ministerpräsident a.D. Erwin Teufel" }
       ],
       "correctChoiceId": "b"
@@ -189,7 +189,7 @@
       "category": "Personenfragen",
       "prompt": "Welchen Merchandise-Artikel zur US-WM 1994 hat Uli seither in regem Gebrauch?",
       "choices": [
-        { "id": "a", "label": "Ein Matthäus-Detuschlandtrikot" },
+        { "id": "a", "label": "Ein Matthäus-Deutschlandtrikot" },
         { "id": "b", "label": "Ein Handtuch mit allen Teihnehmerflaggen" },
         { "id": "c", "label": "Ein WM-Weizenglas" },
         { "id": "d", "label": "Eine Kassette mit dem WM-Song \"Far Away in America\"" }

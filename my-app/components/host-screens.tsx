@@ -59,6 +59,9 @@ export function HostBanner({ right, kicker }: { right?: string; kicker?: string 
 // ── Tile ────────────────────────────────────────────────────
 function HostTile({ idx, text, state }: { idx: number; text: string; state: "normal" | "correct" | "wrong" }) {
   const cfg = Q_CFG[idx];
+  // Lange Antworten bekommen eine kleinere Schrift, damit die Kachel nicht wächst
+  // und den Screen sprengt (v. a. auf dem schmaleren Auflösungs-Layout).
+  const fs = text.length > 55 ? 30 : text.length > 32 ? 38 : 50;
   const isOk = state === "correct";
   const isBad = state === "wrong";
   const tileBg = isOk ? "#169b62" : isBad ? "#9a1210" : CARD;
@@ -70,7 +73,7 @@ function HostTile({ idx, text, state }: { idx: number; text: string; state: "nor
       display: "flex", alignItems: "center", gap: 26, padding: "0 42px",
       background: tileBg, border: `4px solid ${INK}`, borderRadius: 10,
       boxShadow: `6px 6px 0 ${INK}`, minHeight: 164,
-      fontFamily: SERIF, fontWeight: 800, fontSize: 50, color: textCol,
+      fontFamily: SERIF, fontWeight: 800, fontSize: fs, color: textCol,
       opacity: isBad ? 0.48 : 1,
       transition: "background .4s, opacity .4s, color .35s",
       position: "relative", overflow: "hidden", flexShrink: 0,
@@ -149,6 +152,17 @@ export function HostLobby({ players, pin }: { players: { name: string; team: str
   );
 }
 
+// ── Question headline sizing ─────────────────────────────────
+// Kurze Fragen bleiben groß und schmal (Zeitungs-Look), lange Fragen
+// bekommen die volle Breite und eine kleinere Schrift, damit die
+// Antwort-Kacheln nicht aus dem Bild geschoben werden.
+function qHeadlineStyle(text: string, baseSize: number, baseMaxCh: number): CSSProperties {
+  const len = text.length;
+  if (len > 90) return { fontSize: Math.round(baseSize * 0.6), maxWidth: "100%" };
+  if (len > 55) return { fontSize: Math.round(baseSize * 0.78), maxWidth: "100%" };
+  return { fontSize: baseSize, maxWidth: `${baseMaxCh}ch` };
+}
+
 // ── Category Badge ───────────────────────────────────────────
 function CategoryBadge({ category, size = "host" }: { category?: string; size?: "host" | "player" }) {
   if (!category) return null;
@@ -184,7 +198,7 @@ export function HostQuestionIntro({
           <div style={{ fontFamily: SANS, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".2em", fontSize: 26, color: RED }}>Frage {qi + 1} von {totalQ}</div>
           <CategoryBadge category={question.category} size="host" />
         </div>
-        <h1 style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 108, lineHeight: 1.04, margin: 0, color: INK, letterSpacing: "-.015em", maxWidth: "16ch" }}>{question.text}</h1>
+        <h1 style={{ fontFamily: SERIF, fontWeight: 900, lineHeight: 1.04, margin: 0, color: INK, letterSpacing: "-.015em", ...qHeadlineStyle(question.text, 108, 16) }}>{question.text}</h1>
         <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 10 }}>
           <span style={{ fontFamily: SANS, fontWeight: 700, fontSize: 24, textTransform: "uppercase", letterSpacing: ".14em", color: INK, opacity: 0.5 }}>Antworten in</span>
           <span style={{ fontFamily: SANS, fontWeight: 900, fontSize: 64, lineHeight: 1, color: RED, fontVariantNumeric: "tabular-nums", minWidth: 70, textAlign: "center" }}>{countdown}</span>
@@ -212,7 +226,7 @@ export function HostQuestion({
               <div style={{ fontFamily: SANS, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".2em", fontSize: 24, color: RED }}>Frage {qi + 1} von {totalQ}</div>
               <CategoryBadge category={question.category} size="host" />
             </div>
-            <h1 style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 74, lineHeight: 1.03, margin: 0, color: INK, letterSpacing: "-.015em", maxWidth: "18ch" }}>{question.text}</h1>
+            <h1 style={{ fontFamily: SERIF, fontWeight: 900, lineHeight: 1.03, margin: 0, color: INK, letterSpacing: "-.015em", ...qHeadlineStyle(question.text, 74, 18) }}>{question.text}</h1>
           </div>
           <HostCountdown value={countdown} max={maxCountdown} />
         </div>
@@ -249,7 +263,7 @@ export function HostReveal({
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
             <CategoryBadge category={question.category} size="host" />
           </div>
-          <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 52, lineHeight: 1.05, color: INK, maxWidth: "22ch" }}>{question.text}</div>
+          <div style={{ fontFamily: SERIF, fontWeight: 900, lineHeight: 1.05, color: INK, ...qHeadlineStyle(question.text, 52, 22) }}>{question.text}</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, flex: 1 }}>
             {question.opts.map((opt, i) => (
               <HostTile key={i} idx={i} text={opt} state={allCorrect || i === correctIndex ? "correct" : "wrong"} />
