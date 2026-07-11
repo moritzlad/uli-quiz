@@ -1,20 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import { TEAMS, TEAM_COLORS, type Team } from "@/lib/teams";
-
-const P_INK = "#18140d";
-const P_PAPER = "#f6f2e9";
-const P_RED = "#d51317";
-const P_RULE = "#d9d1bf";
-const P_SERIF = '"Bitter",Georgia,"Times New Roman",serif';
-const P_SANS = '"Archivo","Helvetica Neue",Arial,sans-serif';
-
-const P_Q = [
-  { bg: "#e2231a", sf: "#fff" },
-  { bg: "#2563d9", sf: "#fff" },
-  { bg: "#f4a800", sf: "#18140d" },
-  { bg: "#169b62", sf: "#fff" },
-] as const;
+import {
+  INK as P_INK, PAPER as P_PAPER, RED as P_RED, RULE_SOFT as P_RULE,
+  SERIF as P_SERIF, SANS as P_SANS, Q_CFG as P_Q, CATEGORY_COLORS,
+} from "./quiz-config";
 
 function PlayerShape({ idx, size = 34 }: { idx: number; size?: number }) {
   const fill = P_Q[idx].sf;
@@ -32,115 +22,105 @@ function PlayerBanner({ dark }: { dark?: boolean }) {
   return (
     <div style={{ background: dark ? "rgba(0,0,0,.3)" : P_RED, color: "#fff", padding: "10px 20px", textAlign: "center", flexShrink: 0 }}>
       <div style={{ fontFamily: P_SERIF, fontWeight: 900, fontSize: 21, textTransform: "uppercase", letterSpacing: "-.005em", lineHeight: 1 }}>
-        DER&nbsp;<span style={{ fontWeight: 600 }}>JUBILAR</span>
+        DIE&nbsp;<span style={{ fontWeight: 600 }}>FEIER</span>
       </div>
     </div>
   );
 }
 
 // ── JOIN ─────────────────────────────────────────────────────
-export function PlayerJoin({ onJoin }: { onJoin: (name: string, pin: string, team: Team) => void }) {
-  const [step, setStep] = useState<1 | 2>(1);
+export function PlayerJoin({ onJoin, error }: { onJoin: (name: string, pin: string, team: Team) => void; error?: string | null }) {
   const [pin, setPin] = useState("");
   const [name, setName] = useState("");
   const [team, setTeam] = useState<Team | null>(null);
-  const canContinue = name.trim().length > 0 && pin.replace(/\s/g, "").length >= 6;
-  const canJoin = team !== null;
+  const canJoin = name.trim().length > 0 && pin.length === 6 && team !== null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh", background: P_PAPER }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: P_PAPER }}>
       <PlayerBanner />
-      {step === 1 ? (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "28px 22px 24px", gap: 22, overflowY: "auto" }}>
-          <div>
-            <h1 style={{ fontFamily: P_SERIF, fontWeight: 900, fontSize: 32, margin: "0 0 6px", lineHeight: 1.05, color: P_INK }}>Mitmachen!</h1>
-            <p style={{ fontFamily: P_SERIF, fontSize: 16, color: "#5b5547", margin: 0, lineHeight: 1.5 }}>Gib den Code vom großen Bildschirm ein.</p>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <label style={{ fontFamily: P_SANS, fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: ".16em", color: P_INK }}>Quiz-Code</label>
-            <input value={pin} onChange={e => setPin(e.target.value)} placeholder="6-stelliger Code"
-              style={{ fontFamily: P_SANS, fontWeight: 900, fontSize: 28, textAlign: "center", letterSpacing: ".3em", border: `3px solid ${P_INK}`, borderRadius: 8, padding: "13px 14px", background: "#fff", color: P_INK, width: "100%", boxSizing: "border-box", outline: "none" }} />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <label style={{ fontFamily: P_SANS, fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: ".16em", color: P_INK }}>Dein Spitzname</label>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="z. B. Brigitte" maxLength={14}
-              style={{ fontFamily: P_SANS, fontWeight: 700, fontSize: 20, border: `3px solid ${P_INK}`, borderRadius: 8, padding: "13px 14px", background: "#fff", color: P_INK, width: "100%", boxSizing: "border-box", outline: "none" }} />
-          </div>
-          <button onClick={() => canContinue && setStep(2)} style={{
-            fontFamily: P_SANS, fontWeight: 900, fontSize: 19, textTransform: "uppercase", letterSpacing: ".06em",
-            background: canContinue ? P_INK : P_RULE, color: "#fff",
-            border: `3px solid ${canContinue ? P_INK : P_RULE}`, borderRadius: 8,
-            padding: "18px 24px", cursor: canContinue ? "pointer" : "default",
-            boxShadow: canContinue ? `4px 4px 0 ${P_RED}` : "none",
-            transition: "background .2s, box-shadow .2s",
-            width: "100%", boxSizing: "border-box",
-            marginTop: "auto", flexShrink: 0,
-          }}>
-            Weiter →
-          </button>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "28px 22px 24px", gap: 20, overflowY: "auto" }}>
+        <div>
+          <h1 style={{ fontFamily: P_SERIF, fontWeight: 900, fontSize: 32, margin: "0 0 6px", lineHeight: 1.05, color: P_INK }}>Mitmachen!</h1>
+          <p style={{ fontFamily: P_SERIF, fontSize: 16, color: "#5b5547", margin: 0, lineHeight: 1.5 }}>Gib den Code vom großen Bildschirm ein.</p>
         </div>
-      ) : (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "28px 22px 24px", gap: 22, overflowY: "auto" }}>
-          <div>
-            <h1 style={{ fontFamily: P_SERIF, fontWeight: 900, fontSize: 32, margin: "0 0 6px", lineHeight: 1.05, color: P_INK }}>Dein Team, {name.trim()}!</h1>
-            <p style={{ fontFamily: P_SERIF, fontSize: 16, color: "#5b5547", margin: 0, lineHeight: 1.5 }}>Wähle dein Team für die Team-Wertung.</p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label style={{ fontFamily: P_SANS, fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: ".16em", color: P_INK }}>Quiz-Code</label>
+          <input value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            placeholder="6-stelliger Code" inputMode="numeric" autoComplete="off" enterKeyHint="next"
+            style={{ fontFamily: P_SANS, fontWeight: 900, fontSize: 28, textAlign: "center", letterSpacing: ".3em", border: `3px solid ${P_INK}`, borderRadius: 8, padding: "13px 14px", background: "#fff", color: P_INK, width: "100%", boxSizing: "border-box", outline: "none" }} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label style={{ fontFamily: P_SANS, fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: ".16em", color: P_INK }}>Dein Spitzname</label>
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="z. B. Brigitte" maxLength={14}
+            autoComplete="off" autoCorrect="off" enterKeyHint="done"
+            style={{ fontFamily: P_SANS, fontWeight: 700, fontSize: 20, border: `3px solid ${P_INK}`, borderRadius: 8, padding: "13px 14px", background: "#fff", color: P_INK, width: "100%", boxSizing: "border-box", outline: "none" }} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label style={{ fontFamily: P_SANS, fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: ".16em", color: P_INK }}>Dein Team</label>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {TEAMS.map(t => {
               const col = TEAM_COLORS[t];
               const isSelected = team === t;
               return (
                 <button key={t} onClick={() => setTeam(t)} style={{
-                  fontFamily: P_SERIF, fontWeight: 800, fontSize: 19, lineHeight: 1.15,
-                  background: col.bg, color: col.fg,
-                  border: `3px solid ${P_INK}`, borderRadius: 10,
-                  padding: "26px 12px", cursor: "pointer",
-                  opacity: team !== null && !isSelected ? 0.34 : 1,
-                  boxShadow: isSelected ? "none" : `3px 3px 0 ${P_INK}`,
-                  transform: isSelected ? "translate(2px,2px)" : "none",
-                  transition: "opacity .25s, transform .12s, box-shadow .12s",
-                  position: "relative", outline: "none",
+                  fontFamily: P_SANS, fontWeight: 800, fontSize: 13, textTransform: "uppercase", letterSpacing: ".06em",
+                  background: isSelected ? col.bg : "#fff", color: isSelected ? col.fg : P_INK,
+                  border: `2px solid ${P_INK}`, borderRadius: 999,
+                  padding: "8px 15px", cursor: "pointer", outline: "none",
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  boxShadow: isSelected ? "none" : `2px 2px 0 ${P_INK}`,
+                  transform: isSelected ? "translate(1px,1px)" : "none",
+                  transition: "background .15s, transform .1s, box-shadow .1s",
                 }}>
+                  {isSelected
+                    ? <span style={{ fontWeight: 900 }}>✓</span>
+                    : <span style={{ width: 8, height: 8, borderRadius: 999, background: col.bg, display: "inline-block", flexShrink: 0 }} />}
                   {t}
-                  {isSelected && <span style={{ position: "absolute", top: 7, right: 10, fontFamily: P_SANS, fontWeight: 900, fontSize: 16 }}>✓</span>}
                 </button>
               );
             })}
           </div>
-          <button onClick={() => canJoin && onJoin(name.trim(), pin.replace(/\s/g, ""), team!)} style={{
-            fontFamily: P_SANS, fontWeight: 900, fontSize: 19, textTransform: "uppercase", letterSpacing: ".06em",
-            background: canJoin ? P_INK : P_RULE, color: "#fff",
-            border: `3px solid ${canJoin ? P_INK : P_RULE}`, borderRadius: 8,
-            padding: "18px 24px", cursor: canJoin ? "pointer" : "default",
-            boxShadow: canJoin ? `4px 4px 0 ${P_RED}` : "none",
-            transition: "background .2s, box-shadow .2s",
-            width: "100%", boxSizing: "border-box",
-            marginTop: "auto", flexShrink: 0,
-          }}>
-            Beitreten →
-          </button>
-          <button onClick={() => setStep(1)} style={{
-            fontFamily: P_SANS, fontWeight: 700, fontSize: 13, textTransform: "uppercase", letterSpacing: ".1em",
-            background: "none", border: "none", color: "#5b5547", cursor: "pointer", padding: 4, flexShrink: 0,
-          }}>
-            ← Zurück
-          </button>
+          <p style={{ fontFamily: P_SERIF, fontSize: 14, color: "#5b5547", margin: 0, lineHeight: 1.5 }}>Wähle dein Team für die Team-Wertung.</p>
         </div>
-      )}
+        {error && (
+          <div style={{
+            fontFamily: P_SANS, fontWeight: 700, fontSize: 14, lineHeight: 1.4,
+            background: "#9a1210", color: "#fff", border: `3px solid ${P_INK}`,
+            borderRadius: 8, padding: "12px 16px", marginTop: "auto", flexShrink: 0,
+          }}>
+            {error}
+          </div>
+        )}
+        <button onClick={() => canJoin && onJoin(name.trim(), pin, team!)} style={{
+          fontFamily: P_SANS, fontWeight: 900, fontSize: 19, textTransform: "uppercase", letterSpacing: ".06em",
+          background: canJoin ? P_INK : P_RULE, color: "#fff",
+          border: `3px solid ${canJoin ? P_INK : P_RULE}`, borderRadius: 8,
+          padding: "18px 24px", cursor: canJoin ? "pointer" : "default",
+          boxShadow: canJoin ? `4px 4px 0 ${P_RED}` : "none",
+          transition: "background .2s, box-shadow .2s",
+          width: "100%", boxSizing: "border-box",
+          marginTop: error ? 0 : "auto", flexShrink: 0,
+        }}>
+          Beitreten →
+        </button>
+      </div>
     </div>
   );
 }
 
 // ── WAITING ──────────────────────────────────────────────────
-export function PlayerWaiting({ name, team, players }: { name: string; team?: string; players: { name: string; team: string }[] }) {
+export function PlayerWaiting({ name, team, players, mode = "lobby" }: { name: string; team?: string; players: { name: string; team: string }[]; mode?: "lobby" | "between" }) {
   const teamCol = team && team in TEAM_COLORS ? TEAM_COLORS[team as Team] : null;
+  const between = mode === "between";
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh", background: P_PAPER }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: P_PAPER }}>
       <PlayerBanner />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "28px 22px 24px", gap: 18, overflowY: "auto" }}>
         <div style={{ textAlign: "center", padding: "20px 0 12px" }}>
-          <div style={{ fontSize: 52, marginBottom: 10 }}>🎉</div>
-          <h1 style={{ fontFamily: P_SERIF, fontWeight: 900, fontSize: 28, margin: "0 0 8px", color: P_INK, lineHeight: 1.05 }}>Du bist dabei, {name}!</h1>
+          <div style={{ fontSize: 52, marginBottom: 10 }}>{between ? "📊" : "🎉"}</div>
+          <h1 style={{ fontFamily: P_SERIF, fontWeight: 900, fontSize: 28, margin: "0 0 8px", color: P_INK, lineHeight: 1.05 }}>
+            {between ? "Zwischenstand!" : `Du bist dabei, ${name}!`}
+          </h1>
           {teamCol && (
             <div style={{ marginBottom: 8 }}>
               <span style={{ fontFamily: P_SANS, fontWeight: 800, fontSize: 13, textTransform: "uppercase", letterSpacing: ".1em", background: teamCol.bg, color: teamCol.fg, border: `2px solid ${P_INK}`, borderRadius: 999, padding: "5px 14px", display: "inline-block" }}>
@@ -148,7 +128,9 @@ export function PlayerWaiting({ name, team, players }: { name: string; team?: st
               </span>
             </div>
           )}
-          <p style={{ fontFamily: P_SERIF, fontSize: 15, color: "#5b5547", margin: 0, lineHeight: 1.5 }}>Das Quiz beginnt gleich — halt dein Handy bereit.</p>
+          <p style={{ fontFamily: P_SERIF, fontSize: 15, color: "#5b5547", margin: 0, lineHeight: 1.5 }}>
+            {between ? "Schau auf den großen Bildschirm — gleich geht's weiter." : "Das Quiz beginnt gleich — halt dein Handy bereit."}
+          </p>
         </div>
         <div style={{ borderTop: `2px solid ${P_RULE}`, borderBottom: `2px solid ${P_RULE}`, padding: "14px 0" }}>
           <div style={{ fontFamily: P_SANS, fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: ".16em", color: P_RED, marginBottom: 10 }}>{players.length} Spieler dabei</div>
@@ -174,11 +156,6 @@ export function PlayerWaiting({ name, team, players }: { name: string; team?: st
   );
 }
 
-const CATEGORY_COLORS: Record<string, { bg: string; color: string }> = {
-  "Zeitgeschichte": { bg: "#2563d9", color: "#fff" },
-  "Personenfragen": { bg: "#f4a800", color: "#18140d" },
-};
-
 // ── ANSWERING ────────────────────────────────────────────────
 export function PlayerAnswering({
   question, qi, onAnswer, selectedIdx,
@@ -191,7 +168,7 @@ export function PlayerAnswering({
   const answered = selectedIdx !== null;
   const catCol = question.category ? (CATEGORY_COLORS[question.category] ?? { bg: P_INK, color: "#fff" }) : null;
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100dvh", background: P_PAPER }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", background: P_PAPER }}>
       <PlayerBanner />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "14px 14px 20px", gap: 10, overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -246,7 +223,8 @@ export function PlayerResult({
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", background: bg }}>
       <PlayerBanner dark />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 22px", gap: 16 }}>
+      <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", padding: "24px 22px" }}>
+        <div style={{ margin: "auto 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
         <div style={{ fontSize: 72, lineHeight: 1 }}>{correct ? "✅" : "❌"}</div>
         <div style={{ fontFamily: P_SERIF, fontWeight: 900, fontSize: 40, color: "#fff", textAlign: "center", lineHeight: 1.05 }}>{correct ? "Richtig!" : "Falsch!"}</div>
         <div style={{ background: "rgba(255,255,255,.15)", borderRadius: 12, padding: "18px 28px", textAlign: "center", width: "100%", boxSizing: "border-box" }}>
@@ -265,6 +243,7 @@ export function PlayerResult({
               <div style={{ fontFamily: P_SANS, fontWeight: 900, fontSize: 24, color: "#fff", lineHeight: 1 }}>{item.val}</div>
             </div>
           ))}
+          </div>
         </div>
       </div>
     </div>
@@ -285,7 +264,8 @@ export function PlayerFinal({
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", background: heroBg }}>
       <PlayerBanner />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 22px", gap: 18, textAlign: "center" }}>
+      <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", padding: "24px 22px", textAlign: "center" }}>
+        <div style={{ margin: "auto 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
         <div style={{ fontSize: 68, lineHeight: 1 }}>{isTop3 ? medals[rank - 1] : "🎊"}</div>
         <div style={{ fontFamily: P_SERIF, fontWeight: 900, fontSize: 28, color: P_INK, lineHeight: 1.1 }}>
           {isTop3 ? `Glückwunsch, ${name}!` : `Danke fürs Mitspielen, ${name}!`}
@@ -304,6 +284,7 @@ export function PlayerFinal({
           </div>
         )}
         <div style={{ fontFamily: P_SERIF, fontSize: 18, color: P_INK, fontStyle: "italic" }}>Auf Uli! 🥂</div>
+        </div>
       </div>
     </div>
   );

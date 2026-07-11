@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { getSocket } from "@/lib/socket";
+import { SANS } from "@/components/quiz-config";
 import {
   HostLobby, HostQuestion, HostReveal, HostLeaderboard, HostPodium, HostTeamStats,
   type TeamStatsRow,
@@ -28,6 +29,7 @@ interface RevealPayload {
 
 interface LeaderboardPayload {
   leaders: { name: string; score: number }[];
+  teams: TeamStatsRow[];
   qi: number;
 }
 
@@ -41,6 +43,7 @@ export default function HostPage() {
   const [teamStats, setTeamStats] = useState<TeamStatsRow[]>([]);
   const [phase, setPhase]       = useState<Phase>("lobby");
   const [scale, setScale]       = useState(1);
+  const [stageH, setStageH]     = useState(1080);
   const [countdown, setCountdown] = useState(COUNTDOWN_MAX);
   const [answered, setAnswered] = useState(0);
   const [playerCount, setPlayerCount] = useState(0);
@@ -55,15 +58,20 @@ export default function HostPage() {
   const stageRef  = useRef<HTMLDivElement>(null);
   const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Scale the 1920×1080 stage to fill the viewport width (dynamic)
+  // Scale the stage to fill the full stage-area width; the design height
+  // follows the stage area's aspect ratio so nothing slides under the control bar.
   useEffect(() => {
+    if (!stageRef.current) return;
     function doScale() {
       if (!stageRef.current) return;
-      setScale(stageRef.current.clientWidth / 1920);
+      const s = stageRef.current.clientWidth / 1920;
+      setScale(s);
+      setStageH(Math.round(stageRef.current.clientHeight / s));
     }
     doScale();
-    window.addEventListener("resize", doScale);
-    return () => window.removeEventListener("resize", doScale);
+    const ro = new ResizeObserver(doScale);
+    ro.observe(stageRef.current);
+    return () => ro.disconnect();
   }, []);
 
   // Socket setup
@@ -111,6 +119,7 @@ export default function HostPage() {
 
     socket.on("game:leaderboard", (payload: LeaderboardPayload) => {
       setLeaders(payload.leaders);
+      setTeamStats(payload.teams);
       setQIdx(payload.qi);
       setPhase("leaderboard");
     });
@@ -165,7 +174,7 @@ export default function HostPage() {
           />
         ) : null;
       case "leaderboard":
-        return <HostLeaderboard leaders={leaders} qi={qIdx} />;
+        return <HostLeaderboard leaders={leaders} teams={teamStats} qi={qIdx} />;
       case "podium":
         return <HostPodium leaders={leaders} />;
       case "teamstats":
@@ -173,16 +182,13 @@ export default function HostPage() {
     }
   }
 
-  const INK = "#18140d";
-  const SANS = '"Archivo","Helvetica Neue",Arial,sans-serif';
-
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#0d0a07", overflow: "hidden" }}>
 
       {/* Stage */}
       <div ref={stageRef} style={{ flex: 1, overflow: "hidden", position: "relative", background: "#0a0806", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{
-          width: 1920, height: 1080, flexShrink: 0,
+          width: 1920, height: stageH, flexShrink: 0,
           transformOrigin: "center center",
           transform: `scale(${scale})`,
         }}>

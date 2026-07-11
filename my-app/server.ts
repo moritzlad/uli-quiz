@@ -2,9 +2,10 @@ import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
 import {
-  createRoom, addPlayer, removePlayer, getRoom, playerList,
+  createRoom, addPlayer, handleDisconnect, getRoom, playerList,
   startQuestion, recordAnswer, getAnsweredCount, getAnswerDist,
-  scoreAnswers, getLeaderboard, getTeamStats,
+  scoreAnswers, getLeaderboard, getTeamStats, buildStateSnapshot,
+  type StateSnapshot,
 } from "./lib/game";
 import { sampleQuestions } from "./lib/quiz-data";
 
@@ -26,15 +27,20 @@ app.prepare().then(() => {
       cb?.({ pin: room.pin });
     });
 
-    socket.on("player:join", ({ pin, name, team }: { pin: string; name: string; team: string }, cb: (res: { ok: boolean; error?: string }) => void) => {
-      const room = addPlayer(pin, socket.id, name, team);
+    socket.on("player:join", ({ pin, name, team, playerId }: { pin: string; name: string; team: string; playerId: string }, cb: (res: { ok: boolean; error?: string; snapshot?: StateSnapshot }) => void) => {
+      if (!playerId) {
+        cb?.({ ok: false, error: "Ungültige Sitzung. Lade die Seite neu." });
+        return;
+      }
+      const room = addPlayer(pin, playerId, socket.id, name, team);
       if (!room) {
         cb?.({ ok: false, error: "Raum nicht gefunden, schon gestartet oder ungültiges Team" });
         return;
       }
       socket.join(pin);
       socket.data.pin = pin;
-      cb?.({ ok: true });
+      socket.data.playerId = playerId;
+      cb?.({ ok: true, snapshot: buildStateSnapshot(room, playerId) });
       io.to(pin).emit("lobby:update", { players: playerList(room) });
     });
 
@@ -54,8 +60,9 @@ app.prepare().then(() => {
 
     socket.on("player:answer", ({ pin, answerIdx }: { pin: string; answerIdx: number }) => {
       const room = getRoom(pin);
-      if (!room) return;
-      const changed = recordAnswer(room, socket.id, answerIdx);
+      const playerId = socket.data.playerId as string | undefined;
+      if (!room || !playerId) return;
+      const changed = recordAnswer(room, playerId, answerIdx);
       if (changed) {
         const count = getAnsweredCount(room);
         io.to(pin).emit("game:answered", { count, total: room.players.size });
@@ -75,12 +82,14 @@ app.prepare().then(() => {
           correctIndex: q.correctIndex,
           dist: getAnswerDist(room),
           question: { text: q.text, opts: q.opts },
+          leaders: getLeaderboard(room),
         });
       } else if (room.phase === "reveal") {
         if (room.currentIndex < room.questions.length - 1) {
           room.phase = "leaderboard";
           io.to(pin).emit("game:leaderboard", {
             leaders: getLeaderboard(room),
+            teams: getTeamStats(room),
             qi: room.currentIndex,
           });
         } else {
@@ -105,13 +114,12 @@ app.prepare().then(() => {
 
     socket.on("disconnect", () => {
       const pin = socket.data.pin as string | undefined;
-      if (!pin) return;
+      const playerId = socket.data.playerId as string | undefined;
+      if (!pin || !playerId) return;
       const room = getRoom(pin);
       if (!room) return;
-      removePlayer(room, socket.id);
-      if (room.phase === "lobby") {
-        io.to(pin).emit("lobby:update", { players: playerList(room) });
-      }
+      handleDisconnect(room, playerId, socket.id);
+      io.to(pin).emit("lobby:update", { players: playerList(room) });
     });
   });
 

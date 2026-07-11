@@ -6,6 +6,11 @@ export const RULE_SOFT = "#d9d1bf";
 export const SERIF = '"Bitter",Georgia,"Times New Roman",serif';
 export const SANS = '"Archivo","Helvetica Neue",Arial,sans-serif';
 
+export const CATEGORY_COLORS: Record<string, { bg: string; color: string }> = {
+  "Zeitgeschichte": { bg: "#2563d9", color: "#fff" },
+  "Personenfragen": { bg: "#f4a800", color: "#18140d" },
+};
+
 export const Q_CFG = [
   { bg: "#e2231a", sf: "#fff",     db: "#b51810" },
   { bg: "#2563d9", sf: "#fff",     db: "#1b49a6" },

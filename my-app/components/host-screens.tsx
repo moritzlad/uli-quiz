@@ -1,6 +1,6 @@
 "use client";
 import React, { CSSProperties } from "react";
-import { INK, PAPER, CARD, RED, RULE_SOFT, SERIF, SANS, Q_CFG } from "./quiz-config";
+import { INK, PAPER, CARD, RED, RULE_SOFT, SERIF, SANS, Q_CFG, CATEGORY_COLORS } from "./quiz-config";
 import { TEAMS, TEAM_COLORS, type Team } from "@/lib/teams";
 
 function teamColor(team: string): { bg: string; fg: string } {
@@ -44,7 +44,7 @@ export function HostBanner({ right, kicker }: { right?: string; kicker?: string 
     <div style={{ background: RED, color: "#fff", flexShrink: 0 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 60px" }}>
         <span style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 46, textTransform: "uppercase", letterSpacing: "-.01em", lineHeight: 1 }}>
-          DER&nbsp;<span style={{ fontWeight: 600 }}>JUBILAR</span>
+          DIE&nbsp;<span style={{ fontWeight: 600 }}>FEIER</span>
         </span>
         {right && <span style={{ fontFamily: SANS, fontWeight: 800, fontSize: 22, textTransform: "uppercase", letterSpacing: ".13em", opacity: 0.92 }}>{right}</span>}
       </div>
@@ -92,7 +92,7 @@ function HostTile({ idx, text, state }: { idx: number; text: string; state: "nor
 export function HostLobby({ players, pin }: { players: { name: string; team: string }[]; pin: string }) {
   const chunks = String(pin).match(/.{1,2}/g) || [pin];
   return (
-    <div style={{ width: 1920, height: 1080, background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{ width: "100%", height: "100%", background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <HostBanner right="Sonderausgabe Nr. 60" />
       <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr" }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "56px 80px", borderRight: `2px solid ${RULE_SOFT}`, gap: 0 }}>
@@ -146,11 +146,6 @@ export function HostLobby({ players, pin }: { players: { name: string; team: str
 }
 
 // ── Category Badge ───────────────────────────────────────────
-const CATEGORY_COLORS: Record<string, { bg: string; color: string }> = {
-  "Zeitgeschichte": { bg: "#2563d9", color: "#fff" },
-  "Personenfragen": { bg: "#f4a800", color: "#18140d" },
-};
-
 function CategoryBadge({ category, size = "host" }: { category?: string; size?: "host" | "player" }) {
   if (!category) return null;
   const col = CATEGORY_COLORS[category] ?? { bg: INK, color: "#fff" };
@@ -179,7 +174,7 @@ export function HostQuestion({
   answered: number; playerCount: number;
 }) {
   return (
-    <div style={{ width: 1920, height: 1080, background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{ width: "100%", height: "100%", background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <HostBanner right={`Frage ${qi + 1} von ${totalQ}`} kicker="Das Quiz läuft!" />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "38px 60px 34px", gap: 0 }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 40, marginBottom: "auto" }}>
@@ -218,7 +213,7 @@ export function HostReveal({
   const total = Math.max(dist.reduce((a, b) => a + b, 0), 1);
   const maxBar = Math.max(...dist, 1);
   return (
-    <div style={{ width: 1920, height: 1080, background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{ width: "100%", height: "100%", background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <HostBanner right={`Frage ${qi + 1} von ${totalQ}`} kicker="Auflösung" />
       <div style={{ flex: 1, display: "flex" }}>
         <div style={{ flex: 1.25, display: "flex", flexDirection: "column", padding: "40px 48px 40px 60px", gap: 18 }}>
@@ -259,30 +254,62 @@ export function HostReveal({
 }
 
 // ── LEADERBOARD ──────────────────────────────────────────────
-export function HostLeaderboard({ leaders, qi }: { leaders: { name: string; score: number }[]; qi: number }) {
+export function HostLeaderboard({ leaders, teams, qi }: { leaders: { name: string; score: number }[]; teams: TeamStatsRow[]; qi: number }) {
   const top5 = leaders.slice(0, 5);
   return (
-    <div style={{ width: 1920, height: 1080, background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{ width: "100%", height: "100%", background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <HostBanner right="Zwischenstand" kicker={`Nach Frage ${qi + 1}`} />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 240px", gap: 18 }}>
-        <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 60, color: INK, letterSpacing: "-.01em", marginBottom: 6, alignSelf: "flex-start" }}>Zwischenstand</div>
-        {top5.map((p, i) => (
-          <div key={p.name} style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 30,
-            background: i === 0 ? "#f4a800" : CARD,
-            border: `4px solid ${INK}`, borderRadius: 10,
-            padding: "18px 36px", boxShadow: `5px 5px 0 ${INK}`,
-            fontFamily: SANS, fontWeight: 800, fontSize: 44, color: INK,
-          }}>
-            <span style={{ fontSize: 46, width: 64, textAlign: "center", flexShrink: 0, lineHeight: 1 }}>
-              {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`}
-            </span>
-            <span style={{ flex: 1 }}>{p.name}</span>
-            <span style={{ fontWeight: 900, letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums", fontSize: 44 }}>
-              {p.score.toLocaleString("de-DE")} Pkt.
-            </span>
-          </div>
-        ))}
+      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 16, padding: "36px 48px 36px 60px", borderRight: `2px solid ${RULE_SOFT}` }}>
+          <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 48, color: INK, letterSpacing: "-.01em", marginBottom: 6 }}>Top 5</div>
+          {top5.map((p, i) => (
+            <div key={p.name} style={{
+              display: "flex", alignItems: "center", gap: 22,
+              background: i === 0 ? "#f4a800" : CARD,
+              border: `4px solid ${INK}`, borderRadius: 10,
+              padding: "16px 28px", boxShadow: `5px 5px 0 ${INK}`,
+              fontFamily: SANS, fontWeight: 800, fontSize: 34, color: INK,
+            }}>
+              <span style={{ fontSize: 36, width: 52, textAlign: "center", flexShrink: 0, lineHeight: 1 }}>
+                {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`}
+              </span>
+              <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+              <span style={{ fontWeight: 900, letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+                {p.score.toLocaleString("de-DE")} Pkt.
+              </span>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 16, padding: "36px 60px 36px 48px" }}>
+          <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 48, color: INK, letterSpacing: "-.01em", marginBottom: 0 }}>Teams</div>
+          <div style={{ fontFamily: SANS, fontWeight: 700, fontSize: 20, color: INK, opacity: 0.55, marginTop: -10, marginBottom: 6 }}>Ø Punkte pro Spieler</div>
+          {teams.map((t, i) => {
+            const empty = t.playerCount === 0;
+            const col = teamColor(t.team);
+            return (
+              <div key={t.team} style={{
+                display: "flex", alignItems: "center", gap: 20,
+                background: i === 0 && !empty ? "#f4a800" : CARD,
+                border: `4px solid ${INK}`, borderRadius: 10,
+                padding: "16px 28px", boxShadow: `5px 5px 0 ${INK}`,
+                fontFamily: SANS, fontWeight: 800, fontSize: 34, color: INK,
+                opacity: empty ? 0.45 : 1,
+              }}>
+                <span style={{ fontSize: 34, width: 52, textAlign: "center", flexShrink: 0, lineHeight: 1 }}>
+                  {empty ? "—" : i === 0 ? "🏆" : `${i + 1}.`}
+                </span>
+                <span style={{ width: 20, height: 20, borderRadius: 999, background: col.bg, border: `3px solid ${INK}`, flexShrink: 0 }} />
+                <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {t.team}
+                  <span style={{ fontWeight: 600, fontSize: 21, opacity: 0.6, marginLeft: 14 }}>{t.playerCount} Spieler</span>
+                </span>
+                <span style={{ fontWeight: 900, letterSpacing: "-.01em", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+                  {empty ? "—" : `Ø ${t.avgScore.toLocaleString("de-DE")}`}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -299,7 +326,7 @@ export type TeamStatsRow = {
 
 export function HostTeamStats({ teams }: { teams: TeamStatsRow[] }) {
   return (
-    <div style={{ width: 1920, height: 1080, background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{ width: "100%", height: "100%", background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <HostBanner right="Team-Wertung" kicker="Durchschnitt pro Spieler entscheidet" />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 200px", gap: 20 }}>
         <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 60, color: INK, letterSpacing: "-.01em", marginBottom: 6, alignSelf: "flex-start" }}>Team-Wertung</div>
@@ -350,7 +377,7 @@ export function HostPodium({ leaders }: { leaders: { name: string; score: number
   const bgs = ["#c8c0b0", "#f4a800", "#b87333"];
   const ranks = ["2", "1", "3"];
   return (
-    <div style={{ width: 1920, height: 1080, background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{ width: "100%", height: "100%", background: PAPER, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <HostBanner right="Finale" />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "28px 0 0" }}>
         <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 66, color: INK, letterSpacing: "-.015em", marginBottom: 36 }}>Herzlichen Glückwunsch!</div>

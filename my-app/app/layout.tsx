@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DER JUBILAR — Quiz",
+  title: "DIE FEIER — Quiz",
   description: "Das Geburtstags-Quiz für Uli!",
 };
 
@@ -20,7 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de" style={{ height: "100%" }}>
-      <body style={{ margin: 0, height: "100%" }}>{children}</body>
+      {/* suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
+          attributes into <body> before hydration; only this element is affected. */}
+      <body style={{ margin: 0, height: "100%" }} suppressHydrationWarning>{children}</body>
     </html>
   );
 }

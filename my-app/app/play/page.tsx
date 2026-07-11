@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getSocket } from "@/lib/socket";
+import { getPlayerId, loadSession } from "@/lib/player-session";
 import {
   PlayerWaiting, PlayerAnswering, PlayerResult, PlayerFinal,
 } from "@/components/player-screens";
@@ -16,32 +17,53 @@ interface QuestionPayload {
   endsAt: number;
 }
 
+interface Leader { id: string; name: string; score: number; earned: number; answer: number | null }
+
 interface RevealPayload {
   qi: number;
   totalQ: number;
   correctIndex: number;
   dist: number[];
   question: { text: string; opts: string[] };
+  leaders: Leader[];
 }
 
 interface LeaderboardPayload {
-  leaders: { name: string; score: number }[];
+  leaders: Leader[];
   qi: number;
 }
 
 interface PodiumPayload {
-  leaders: { name: string; score: number }[];
+  leaders: Leader[];
 }
 
 interface TeamStatsPayload {
   teams: { team: string; playerCount: number; totalScore: number; avgScore: number; mvp: { name: string; score: number } | null }[];
 }
 
+interface StateSnapshot {
+  phase: "lobby" | "question" | "reveal" | "leaderboard" | "podium" | "teamstats";
+  qi: number;
+  totalQ: number;
+  players: { name: string; team: string }[];
+  score: number;
+  yourAnswer: number | null;
+  pointsEarned?: number;
+  question?: { text: string; opts: string[] };
+  endsAt?: number;
+  correctIndex?: number;
+  dist?: number[];
+  leaders?: Leader[];
+  teams?: TeamStatsPayload["teams"];
+}
+
 function PlayPageInner() {
-  const params   = useSearchParams();
-  const pin      = params.get("pin") ?? "";
-  const name     = params.get("name") ?? "";
-  const team     = params.get("team") ?? "";
+  const params  = useSearchParams();
+  const router  = useRouter();
+  const session = loadSession();
+  const pin     = params.get("pin")  || session?.pin  || "";
+  const name    = params.get("name") || session?.name || "";
+  const team    = params.get("team") || session?.team || "";
 
   const [phase, setPhase]           = useState<Phase>("waiting");
   const [lobbyPlayers, setLobbyPlayers] = useState<{ name: string; team: string }[]>([]);
@@ -55,11 +77,76 @@ function PlayPageInner() {
   const [rank, setRank]             = useState(1);
   const [totalPlayers, setTotalPlayers] = useState(1);
 
-  const answerTimeRef = useRef<number | null>(null);
-  const endsAtRef     = useRef<number>(0);
+  const selectedIdxRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (!pin || !name || !team) {
+      router.replace("/");
+      return;
+    }
     const socket = getSocket();
+    const playerId = getPlayerId();
+
+    function applyLeaders(leaders: Leader[] | undefined) {
+      if (!leaders) return;
+      const idx = leaders.findIndex(l => l.id === playerId);
+      setRank(idx >= 0 ? idx + 1 : leaders.length);
+      setTotalPlayers(leaders.length);
+      if (idx >= 0) setTotalScore(leaders[idx].score);
+    }
+
+    function applySnapshot(snap: StateSnapshot) {
+      setLobbyPlayers(snap.players);
+      setTotalScore(snap.score);
+      if (snap.qi >= 0) setQi(snap.qi);
+      setSelectedIdx(snap.yourAnswer);
+      selectedIdxRef.current = snap.yourAnswer;
+      switch (snap.phase) {
+        case "lobby":
+          setPhase("waiting");
+          break;
+        case "question":
+          if (snap.question) setQuestion(snap.question);
+          setPhase("question");
+          break;
+        case "reveal":
+          if (snap.question) setQuestion(snap.question);
+          setCorrect(snap.yourAnswer !== null && snap.yourAnswer === snap.correctIndex);
+          setPointsEarned(snap.pointsEarned ?? 0);
+          applyLeaders(snap.leaders);
+          setPhase("reveal");
+          break;
+        case "leaderboard":
+          applyLeaders(snap.leaders);
+          setPhase("leaderboard");
+          break;
+        case "podium":
+          applyLeaders(snap.leaders);
+          setPhase("podium");
+          break;
+        case "teamstats":
+          applyLeaders(snap.leaders);
+          setTeamStats(snap.teams ?? null);
+          setPhase("podium");
+          break;
+      }
+    }
+
+    // (Re-)join the room: restores name/team/score after a refresh or a
+    // dropped connection, and returns the current phase so the right screen renders.
+    function rejoin() {
+      socket.emit(
+        "player:join",
+        { pin, name, team, playerId },
+        (res: { ok: boolean; error?: string; snapshot?: StateSnapshot }) => {
+          if (res.ok && res.snapshot) applySnapshot(res.snapshot);
+          else router.replace("/");
+        }
+      );
+    }
+
+    socket.on("connect", rejoin);
+    if (socket.connected) rejoin();
 
     socket.on("lobby:update", ({ players: p }: { players: { name: string; team: string }[] }) => {
       setLobbyPlayers(p);
@@ -69,42 +156,37 @@ function PlayPageInner() {
       setQuestion({ text: payload.text, opts: payload.opts });
       setQi(payload.qi);
       setSelectedIdx(null);
-      endsAtRef.current = payload.endsAt;
+      selectedIdxRef.current = null;
       setPhase("question");
     });
 
     socket.on("game:reveal", (payload: RevealPayload) => {
-      if (selectedIdx !== null) {
-        const isCorrect = selectedIdx === payload.correctIndex;
-        setCorrect(isCorrect);
-        if (isCorrect && answerTimeRef.current !== null) {
-          const elapsed = answerTimeRef.current - (endsAtRef.current - 20000);
-          const timeLimit = 20000;
-          const bonus = Math.round(500 * Math.max(0, 1 - elapsed / timeLimit));
-          const earned = 500 + bonus;
-          setPointsEarned(earned);
-          setTotalScore(s => s + earned);
-        } else {
-          setPointsEarned(0);
-        }
+      const idx = payload.leaders.findIndex(l => l.id === playerId);
+      if (idx >= 0) {
+        const me = payload.leaders[idx];
+        // Server-recorded answer, not the local selection — they can differ
+        // if the answer packet was lost or arrived after the deadline.
+        setCorrect(me.answer !== null && me.answer === payload.correctIndex);
+        setSelectedIdx(me.answer);
+        selectedIdxRef.current = me.answer;
+        setPointsEarned(me.earned);
+        setTotalScore(me.score);
+        setRank(idx + 1);
       } else {
         setCorrect(false);
         setPointsEarned(0);
       }
+      setTotalPlayers(payload.leaders.length);
       setPhase("reveal");
     });
 
     socket.on("game:leaderboard", (payload: LeaderboardPayload) => {
-      const idx = payload.leaders.findIndex(p => p.name === name);
-      setRank(idx >= 0 ? idx + 1 : payload.leaders.length);
-      setTotalPlayers(payload.leaders.length);
+      applyLeaders(payload.leaders);
       setPhase("leaderboard");
     });
 
     socket.on("game:podium", (payload: PodiumPayload) => {
-      const idx = payload.leaders.findIndex(p => p.name === name);
-      setRank(idx >= 0 ? idx + 1 : payload.leaders.length);
-      setTotalPlayers(payload.leaders.length);
+      applyLeaders(payload.leaders);
       setPhase("podium");
     });
 
@@ -113,6 +195,7 @@ function PlayPageInner() {
     });
 
     return () => {
+      socket.off("connect", rejoin);
       socket.off("lobby:update");
       socket.off("game:question");
       socket.off("game:reveal");
@@ -120,12 +203,12 @@ function PlayPageInner() {
       socket.off("game:podium");
       socket.off("game:teamstats");
     };
-  }, [name, selectedIdx]);
+  }, [pin, name, team, router]);
 
   function handleAnswer(idx: number) {
     if (selectedIdx !== null || !pin) return;
     setSelectedIdx(idx);
-    answerTimeRef.current = Date.now();
+    selectedIdxRef.current = idx;
     getSocket().emit("player:answer", { pin, answerIdx: idx });
   }
 
@@ -133,7 +216,7 @@ function PlayPageInner() {
     switch (phase) {
       case "waiting":
       case "leaderboard":
-        return <PlayerWaiting name={name} team={team} players={lobbyPlayers} />;
+        return <PlayerWaiting name={name} team={team} players={lobbyPlayers} mode={phase === "leaderboard" ? "between" : "lobby"} />;
       case "question":
         return question ? (
           <PlayerAnswering question={question} qi={qi} onAnswer={handleAnswer} selectedIdx={selectedIdx} />

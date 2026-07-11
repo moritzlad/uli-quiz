@@ -8,12 +8,15 @@ export type Question = {
 };
 
 export type Player = {
-  id: string;
+  id: string; // stable, client-generated playerId (survives reconnects)
+  socketId: string | null;
+  connected: boolean;
   name: string;
   team: string;
   score: number;
   lastAnswer?: number;
   answeredAt?: number;
+  lastEarned?: number;
 };
 
 export type Phase = "lobby" | "question" | "reveal" | "leaderboard" | "podium" | "teamstats";
@@ -57,15 +60,31 @@ export function getRoom(pin: string): Room | undefined {
   return rooms.get(pin);
 }
 
-export function addPlayer(pin: string, id: string, name: string, team: string): Room | null {
+export function addPlayer(pin: string, playerId: string, socketId: string, name: string, team: string): Room | null {
   const room = rooms.get(pin);
-  if (!room || room.phase !== "lobby" || !isTeam(team)) return null;
-  room.players.set(id, { id, name, team, score: 0 });
+  if (!room || !isTeam(team)) return null;
+  const existing = room.players.get(playerId);
+  if (existing) {
+    // Rejoin (any phase): keep name/team/score, just re-attach the socket
+    existing.socketId = socketId;
+    existing.connected = true;
+    return room;
+  }
+  if (room.phase !== "lobby") return null;
+  room.players.set(playerId, { id: playerId, socketId, connected: true, name, team, score: 0 });
   return room;
 }
 
-export function removePlayer(room: Room, id: string): void {
-  room.players.delete(id);
+export function handleDisconnect(room: Room, playerId: string, socketId: string): void {
+  const player = room.players.get(playerId);
+  // Ignore stale disconnects: the player may already have rejoined on a new socket
+  if (!player || player.socketId !== socketId) return;
+  if (room.phase === "lobby") {
+    room.players.delete(playerId);
+    return;
+  }
+  player.connected = false;
+  player.socketId = null;
 }
 
 export function playerList(room: Room): { name: string; team: string }[] {
@@ -79,6 +98,7 @@ export function startQuestion(room: Room): void {
   room.players.forEach((p) => {
     p.lastAnswer = undefined;
     p.answeredAt = undefined;
+    p.lastEarned = undefined;
   });
 }
 
@@ -109,16 +129,67 @@ export function scoreAnswers(room: Room): void {
     if (player.lastAnswer === q.correctIndex && player.answeredAt !== undefined) {
       const elapsed = player.answeredAt - start;
       const bonus = Math.round(500 * Math.max(0, 1 - elapsed / QUESTION_TIME_MS));
-      player.score += 500 + bonus;
+      player.lastEarned = 500 + bonus;
+      player.score += player.lastEarned;
+    } else {
+      player.lastEarned = 0;
     }
   });
   room.phase = "reveal";
 }
 
-export function getLeaderboard(room: Room): { name: string; score: number }[] {
+export function getLeaderboard(room: Room): { id: string; name: string; score: number; earned: number; answer: number | null }[] {
   return [...room.players.values()]
     .sort((a, b) => b.score - a.score)
-    .map((p) => ({ name: p.name, score: p.score }));
+    .map((p) => ({ id: p.id, name: p.name, score: p.score, earned: p.lastEarned ?? 0, answer: p.lastAnswer ?? null }));
+}
+
+export type StateSnapshot = {
+  phase: Phase;
+  qi: number;
+  totalQ: number;
+  players: { name: string; team: string }[];
+  score: number;
+  yourAnswer: number | null;
+  pointsEarned?: number;
+  question?: { text: string; opts: string[] };
+  endsAt?: number;
+  correctIndex?: number;
+  dist?: number[];
+  leaders?: ReturnType<typeof getLeaderboard>;
+  teams?: TeamStats[];
+};
+
+export function buildStateSnapshot(room: Room, playerId: string): StateSnapshot {
+  const player = room.players.get(playerId);
+  const snapshot: StateSnapshot = {
+    phase: room.phase,
+    qi: room.currentIndex,
+    totalQ: room.questions.length,
+    players: playerList(room),
+    score: player?.score ?? 0,
+    yourAnswer: player?.lastAnswer ?? null,
+  };
+  const q = room.questions[room.currentIndex];
+  if (room.phase === "question" && q) {
+    snapshot.question = { text: q.text, opts: q.opts };
+    snapshot.endsAt = room.questionEndsAt;
+  } else if (room.phase === "reveal" && q) {
+    snapshot.question = { text: q.text, opts: q.opts };
+    snapshot.correctIndex = q.correctIndex;
+    snapshot.dist = getAnswerDist(room);
+    snapshot.leaders = getLeaderboard(room);
+    snapshot.pointsEarned = player?.lastEarned ?? 0;
+  } else if (room.phase === "leaderboard") {
+    snapshot.leaders = getLeaderboard(room);
+    snapshot.teams = getTeamStats(room);
+  } else if (room.phase === "podium") {
+    snapshot.leaders = getLeaderboard(room);
+  } else if (room.phase === "teamstats") {
+    snapshot.leaders = getLeaderboard(room);
+    snapshot.teams = getTeamStats(room);
+  }
+  return snapshot;
 }
 
 export type TeamStats = {
